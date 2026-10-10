@@ -49,8 +49,8 @@ func loadRelief(source Source) (*Grid, error) {
 		return nil, err
 	}
 	extent := world.Extent{
-		MinimumX: float32(read.West - source.Origin[0]), MaximumX: float32(read.East() - source.Origin[0]),
-		MinimumZ: float32(source.Origin[1] - read.North), MaximumZ: float32(source.Origin[1] - read.South()),
+		MinimumX: read.West - source.Origin[0], MaximumX: read.East() - source.Origin[0],
+		MinimumZ: source.Origin[1] - read.North, MaximumZ: source.Origin[1] - read.South(),
 	}
 	return &Grid{Columns: read.Columns, Rows: read.Rows, Extent: extent, Heights: read.Heights}, nil
 }
@@ -65,15 +65,15 @@ func loadNumpyRelief(source Source) (*Grid, error) {
 	}
 	half := source.CellSize / 2
 	extent := world.Extent{
-		MinimumX: float32(source.MinimumX - half), MaximumX: float32(source.MinimumX - half + float64(columns)*source.CellSize),
-		MinimumZ: float32(source.MinimumZ - half), MaximumZ: float32(source.MinimumZ - half + float64(rows)*source.CellSize),
+		MinimumX: source.MinimumX - half, MaximumX: source.MinimumX - half + float64(columns)*source.CellSize,
+		MinimumZ: source.MinimumZ - half, MaximumZ: source.MinimumZ - half + float64(rows)*source.CellSize,
 	}
 	return &Grid{Columns: columns, Rows: rows, Extent: extent, Heights: heights}, nil
 }
 
 // CellSize is the spacing of the cells in world units.
 func (grid *Grid) CellSize() float64 {
-	return float64(grid.Extent.MaximumX-grid.Extent.MinimumX) / float64(grid.Columns)
+	return (grid.Extent.MaximumX - grid.Extent.MinimumX) / float64(grid.Columns)
 }
 
 // Slopes returns the steepness of every cell, rise over run, with the gradient taken like
