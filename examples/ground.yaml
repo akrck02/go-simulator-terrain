@@ -1,0 +1,14 @@
+# The ground of a relief as fields of the world. Put relieve.json and relieve.f32 (go-scene-builder's
+# relief format) next to this file, or change the path.
+plugins:
+  - name: terrain
+    command: [go, run, .]
+    directory: ..
+
+stages:
+  - name: ground
+    clock: {from: 0, to: 1, step: 1}
+    snapshots: [1]
+    rules:
+      - rule: relief
+        with: {path: relieve.json, origin: [0, 0]}
