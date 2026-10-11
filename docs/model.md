@@ -14,7 +14,7 @@ already there.
 
 ## What it publishes
 
-At the start, two fields of the [vocabulary](https://github.com/akrck02/go-3d-simulator/blob/feature/simuladores-genericos/docs/vocabulary.md):
+At the start, two fields of the [vocabulary](https://github.com/akrck02/go-simulator/blob/feature/simuladores-genericos/docs/vocabulary.md):
 
 | Field | Unit | How |
 |---|---|---|

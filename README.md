@@ -3,7 +3,7 @@
 ![The ground of a made-up island, as the other plugins read it](docs/img/terrain_fields.png)
 
 
-A [go-simulator](https://github.com/akrck02/go-3d-simulator) plugin that publishes the ground: it reads a relief once and puts
+A [go-simulator](https://github.com/akrck02/go-simulator) plugin that publishes the ground: it reads a relief once and puts
 it in the world as the fields `elevation` (metres) and `slope`, so the other plugins read the same
 ground from the world instead of each one loading its own file.
 
