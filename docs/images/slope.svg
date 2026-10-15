@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 400" width="880" height="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .box { fill: #f6f8fa; stroke: #d0d7de; }
+    .accent { fill: #ddf4ff; stroke: #54aeff; }
+    .warm { fill: #fff1e5; stroke: #ec8f3f; }
+    .title { fill: #1f2328; font-size: 15px; font-weight: 600; }
+    .text { fill: #59636e; font-size: 12.5px; }
+    .code { fill: #0969da; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .label { fill: #59636e; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .value { fill: #1f2328; font-size: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .arrow { stroke: #8c959f; stroke-width: 1.6; fill: none; }
+    .head { fill: #8c959f; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .box { fill: #161b22; stroke: #30363d; }
+      .accent { fill: #0c2d4b; stroke: #1f6feb; }
+      .warm { fill: #2b1a0c; stroke: #c66a2a; }
+      .title { fill: #e6edf3; }
+      .text { fill: #9198a1; }
+      .code { fill: #4493f8; }
+      .label { fill: #9198a1; }
+      .value { fill: #e6edf3; }
+      .arrow { stroke: #6e7681; }
+      .head { fill: #6e7681; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="400" rx="12"/>
+
+  <text class="title" x="40" y="36">One row of a relief: heights in metres, cells 50 m apart</text>
+
+  <!-- six cells -->
+  <rect class="warm" x="60" y="56" width="110" height="56" rx="6" stroke-width="1.4"/>
+  <rect class="box" x="182" y="56" width="110" height="56" rx="6" stroke-width="1.2"/>
+  <rect class="warm" x="304" y="56" width="110" height="56" rx="6" stroke-width="1.4"/>
+  <rect class="box" x="426" y="56" width="110" height="56" rx="6" stroke-width="1.2"/>
+  <rect class="box" x="548" y="56" width="110" height="56" rx="6" stroke-width="1.2"/>
+  <rect class="warm" x="670" y="56" width="110" height="56" rx="6" stroke-width="1.4"/>
+  <text class="value" x="115" y="89" text-anchor="middle">10</text>
+  <text class="value" x="237" y="89" text-anchor="middle">14</text>
+  <text class="value" x="359" y="89" text-anchor="middle">20</text>
+  <text class="value" x="481" y="89" text-anchor="middle">28</text>
+  <text class="value" x="603" y="89" text-anchor="middle">30</text>
+  <text class="value" x="725" y="89" text-anchor="middle">31</text>
+
+  <!-- edges and inside -->
+  <path class="arrow" d="M237,118 C237,140 140,140 122,124" marker-end="url(#arrow)"/>
+  <path class="arrow" d="M237,118 C237,150 340,150 352,124" marker-end="url(#arrow)"/>
+  <path class="arrow" d="M481,118 C481,150 380,150 366,124" marker-end="url(#arrow)"/>
+  <path class="arrow" d="M603,118 C603,140 700,140 718,124" marker-end="url(#arrow)"/>
+
+  <text class="title" x="115" y="182" text-anchor="middle">First cell</text>
+  <text class="text" x="115" y="202" text-anchor="middle">one-sided:</text>
+  <text class="text" x="115" y="218" text-anchor="middle">the next one minus it</text>
+  <text class="code" x="115" y="242" text-anchor="middle">(14 − 10) / 50</text>
+  <text class="code" x="115" y="260" text-anchor="middle">= 0.08</text>
+
+  <text class="title" x="420" y="182" text-anchor="middle">A cell inside</text>
+  <text class="text" x="420" y="202" text-anchor="middle">central: half the difference</text>
+  <text class="text" x="420" y="218" text-anchor="middle">between its two neighbours</text>
+  <text class="code" x="420" y="242" text-anchor="middle">(28 − 14) / 2 / 50</text>
+  <text class="code" x="420" y="260" text-anchor="middle">= 0.14</text>
+
+  <text class="title" x="725" y="182" text-anchor="middle">Last cell</text>
+  <text class="text" x="725" y="202" text-anchor="middle">one-sided:</text>
+  <text class="text" x="725" y="218" text-anchor="middle">it minus the one before</text>
+  <text class="code" x="725" y="242" text-anchor="middle">(31 − 30) / 50</text>
+  <text class="code" x="725" y="260" text-anchor="middle">= 0.02</text>
+
+  <!-- combined -->
+  <rect class="accent" x="60" y="288" width="720" height="88" rx="10" stroke-width="1.2"/>
+  <text class="text" x="420" y="314" text-anchor="middle">the same along the columns (z) gives a second rise over run; the slope of the cell is their length:</text>
+  <text class="code" x="420" y="340" text-anchor="middle">slope = √(along_x² + along_z²)</text>
+  <text class="text" x="420" y="364" text-anchor="middle">50 m = <tspan class="code">cell size × metres_per_unit</tspan>, here 0.05 × 1000</text>
+</svg>
