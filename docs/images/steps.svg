@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 300" width="880" height="300" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .box { fill: #f6f8fa; stroke: #d0d7de; }
+    .accent { fill: #ddf4ff; stroke: #54aeff; }
+    .title { fill: #1f2328; font-size: 15px; font-weight: 600; }
+    .text { fill: #59636e; font-size: 12.5px; }
+    .code { fill: #0969da; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .label { fill: #59636e; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .arrow { stroke: #8c959f; stroke-width: 1.6; fill: none; }
+    .head { fill: #8c959f; }
+    .line { stroke: #d0d7de; stroke-width: 1.2; }
+    .camera { fill: #1f2328; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .box { fill: #161b22; stroke: #30363d; }
+      .accent { fill: #0c2d4b; stroke: #1f6feb; }
+      .title { fill: #e6edf3; }
+      .text { fill: #9198a1; }
+      .code { fill: #4493f8; }
+      .label { fill: #9198a1; }
+      .arrow { stroke: #6e7681; }
+      .head { fill: #6e7681; }
+      .line { stroke: #30363d; }
+      .camera { fill: #e6edf3; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="300" rx="12"/>
+
+  <text class="title" x="40" y="36">A stage whose clock goes from 0 to 3, a step of 1</text>
+
+  <!-- time axis -->
+  <path class="arrow" d="M150,236 H850" marker-end="url(#arrow)"/>
+  <text class="label" x="200" y="256" text-anchor="middle">start</text>
+  <text class="label" x="380" y="256" text-anchor="middle">step to 1</text>
+  <text class="label" x="560" y="256" text-anchor="middle">step to 2</text>
+  <text class="label" x="740" y="256" text-anchor="middle">step to 3</text>
+  <path class="line" d="M290,60 V236 M470,60 V236 M650,60 V236"/>
+
+  <!-- the relief rule -->
+  <text class="code" x="40" y="104">relief</text>
+  <rect class="accent" x="120" y="74" width="160" height="58" rx="8" stroke-width="1.4"/>
+  <text class="text" x="200" y="98" text-anchor="middle">reads the file,</text>
+  <text class="text" x="200" y="116" text-anchor="middle">sets <tspan class="code">elevation</tspan>, <tspan class="code">slope</tspan></text>
+  <rect class="box" x="300" y="74" width="160" height="58" rx="8" stroke-width="1.2"/>
+  <text class="text" x="380" y="108" text-anchor="middle">nothing to do</text>
+  <rect class="box" x="480" y="74" width="160" height="58" rx="8" stroke-width="1.2"/>
+  <text class="text" x="560" y="108" text-anchor="middle">nothing to do</text>
+  <rect class="box" x="660" y="74" width="160" height="58" rx="8" stroke-width="1.2"/>
+  <text class="text" x="740" y="108" text-anchor="middle">nothing to do</text>
+
+  <!-- what the host printed -->
+  <text class="text" x="40" y="172">the host</text>
+  <text class="text" x="40" y="188">printed</text>
+  <text class="label" x="380" y="188" text-anchor="middle">ground 1 (0 changes)</text>
+  <text class="label" x="560" y="188" text-anchor="middle">ground 2 (0 changes)</text>
+  <text class="label" x="740" y="188" text-anchor="middle">ground 3 (0 changes)</text>
+
+  <!-- snapshots -->
+  <circle class="camera" cx="470" cy="236" r="5"/>
+  <circle class="camera" cx="830" cy="236" r="5"/>
+  <text class="label" x="470" y="222" text-anchor="middle">snapshot</text>
+  <text class="label" x="830" y="222" text-anchor="end">snapshot: the same bytes</text>
+</svg>

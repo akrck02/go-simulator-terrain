@@ -1,16 +1,16 @@
-# Rules of the terrain plugin
+# 📋 Rules of the terrain plugin
 
 Version 0.1.0, protocol 1. Publishes the ground of a relief as fields of the world: elevation (m) and slope (m/m).
 
 This reference is generated from what the plugin itself tells the host (the `describe` message), so it always
 matches the code. Parameters go under `with:` in a rules file; see go-simulator's
-[rules file reference](https://github.com/akrck02/go-simulator/blob/feature/simuladores-genericos/docs/rules-files.md).
+[rules file reference](https://github.com/akrck02/go-simulator/blob/main/docs/rules-files.md).
 
 | Rule | What it does |
 |---|---|
 | [`relief`](#relief) | Reads a relief and publishes, at the start, the fields elevation (metres) and slope (rise over run). |
 
-## relief
+## `relief`
 
 Reads a relief and publishes, at the start, the fields elevation (metres) and slope (rise over run).
 
