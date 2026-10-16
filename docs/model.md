@@ -26,8 +26,11 @@ At the start, two fields of the [vocabulary](https://github.com/akrck02/go-simul
 | `elevation` | metres | the relief's heights, untouched |
 | `slope` | rise over run | the gradient like `numpy.gradient`: central differences inside, one-sided at the edges |
 
-Values sit at cell centres, rows from the smallest z and columns from the smallest x. The ground
-does not change with time, so later steps publish nothing.
+Values sit at cell centres, rows from the smallest z and columns from the smallest x. The `relief`
+rule publishes them once: on its own the ground does not change, so later steps publish nothing.
+To let it change, add the [`erosion` rule](erosion.md) after it: the land rises, the rivers cut
+their valleys and the hillslopes round off, and the rule publishes the ground again as it changes,
+with `drainage_area` and the rivers.
 
 Another made-up island, shaded, and its two fields:
 

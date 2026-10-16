@@ -83,4 +83,16 @@ go test ./...
 ```
 
 The tests check both formats on small synthetic reliefs, the slope of a plane, and that the fields
-reach the world before the first step.
+reach the world before the first step. For erosion they check that no water is lost or made on the
+way to the sea, that hollows drain, that uplift and erosion settle where the stream power law says
+(S = (U/K)·A^−m), that creep never overshoots however long the step, that the sea does not move,
+that the same seed gives the same valleys, that every rule describes its contracts, and that the
+ground, its drainage and its rivers reach the world and change over the steps.
+
+`examples/eroding-island.yaml` runs the erosion on a made-up island that comes with it
+(`island.npy`), a million years in 100 steps:
+
+```bash
+cd ../go-simulator
+go run ./cmd/simulate -rules ../go-simulator-terrain/examples/eroding-island.yaml -output results/
+```

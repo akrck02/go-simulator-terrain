@@ -9,7 +9,7 @@ import (
 )
 
 // Version of the plugin.
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // defaultMetresPerUnit is the size of a world unit in metres: the scenes are in kilometres.
 const defaultMetresPerUnit = 1000
@@ -19,9 +19,15 @@ func Plugin() *plugin.Plugin {
 	return &plugin.Plugin{
 		Name:    "terrain",
 		Version: Version,
-		Summary: "Publishes the ground of a relief as fields of the world: elevation (m) and slope (m/m).",
-		Rules:   []plugin.Definition{reliefRule()},
+		Summary: "Publishes the ground of a relief as fields of the world, elevation (m) and slope (m/m), and can evolve it: uplift, rivers and hillslopes.",
+		Rules:   []plugin.Definition{reliefRule(), erosionRule()},
 	}
+}
+
+// groundOutputs are the fields both rules publish.
+var groundOutputs = []protocol.OutputDescription{
+	plugin.Field(world.FieldElevation, "m", "height of the ground"),
+	plugin.Field(world.FieldSlope, "m/m", "steepness of the ground, rise over run"),
 }
 
 func reliefRule() plugin.Definition {
@@ -37,7 +43,8 @@ func reliefRule() plugin.Definition {
 				{Name: "cell_size", Type: "number", Summary: ".npy reliefs: spacing of the cells (world units)"},
 				{Name: "metres_per_unit", Type: "number", Default: defaultMetresPerUnit, Summary: "size of a world unit in metres, for the slope"},
 			},
-			Writes: []string{world.FieldElevation, world.FieldSlope},
+			Writes:    []string{world.FieldElevation, world.FieldSlope},
+			Publishes: groundOutputs,
 		},
 		New: newRelief,
 	}

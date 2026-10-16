@@ -31,9 +31,10 @@ Fields are in physical units and shapes in world units, as go-simulator's
   <img alt="A stage whose clock goes from 0 to 3, a step of 1. At the start the relief rule reads the file and sets elevation and slope; at the steps to 1, 2 and 3 it has nothing to do and the host prints ground 1, 2 and 3 with 0 changes. Snapshots after the steps to 1 and 3 are the same bytes" src="images/steps.svg" width="880">
 </p>
 
-The ground does not change with time. The rule publishes it once, when the stage starts, so every
-plugin has it before its first step; if a host did not call the start, the first step publishes it
-instead. Every later step answers with nothing.
+On its own the ground does not change with time. The `relief` rule publishes it once, when the
+stage starts, so every plugin has it before its first step; if a host did not call the start, the
+first step publishes it instead. Every later step answers with nothing. The
+[`erosion` rule](erosion.md), put after it, is the one that changes the ground over the steps.
 
 The picture is a real run: a stage from 0 to 3 with the island of the other pages, where
 `simulate` printed `0 changes` for every step and the snapshots taken after steps 1 and 3 hold

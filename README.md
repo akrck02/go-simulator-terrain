@@ -5,11 +5,13 @@
 **The ground of a simulation, as a plugin for [go-simulator](https://github.com/akrck02/go-simulator).**
 It reads a relief once and puts it in the world as two fields, `elevation` (metres) and `slope`,
 so every other plugin reads the same ground from the world instead of loading its own file.
+Its `erosion` rule lets that ground change: the land rises, rivers cut valleys and hillslopes
+round off, and the rivers it finds go into the world too.
 
 [![Go](https://img.shields.io/github/go-mod/go-version/akrck02/go-simulator-terrain)](go.mod)
 ![Plugin](https://img.shields.io/badge/go--simulator-plugin-informational)
-![Protocol](https://img.shields.io/badge/protocol-1-informational)
-![Version](https://img.shields.io/badge/version-0.1.0-informational)
+![Protocol](https://img.shields.io/badge/protocol-2-informational)
+![Version](https://img.shields.io/badge/version-0.2.0-informational)
 
 </div>
 
@@ -93,8 +95,9 @@ With a relief next to the example, `results/` gets `ground 1 elevation.json` and
 </p>
 
 go-simulator starts the plugin and tells its `relief` rule to start. The rule reads the file, lays
-the grid on the world, measures the slope of every cell and sets both fields. The ground does not
-change with time, so every later step answers with nothing.
+the grid on the world, measures the slope of every cell and sets both fields. On its own the ground does not
+change with time, so every later step answers with nothing; with the `erosion` rule after it, the
+ground evolves every step and is published again with its drainage and rivers.
 [More on how it works →](docs/how-it-works.md)
 
 ## 📚 Documentation
@@ -103,5 +106,6 @@ change with time, so every later step answers with nothing.
 |---|---|
 | [Getting started](docs/getting-started.md) | The folders it needs, the example, your own relief, the output files and the tests. |
 | [Reliefs and fields](docs/model.md) | What it publishes, how the slope is measured, the two relief formats and how they lie on the world. |
+| [Erosion and rivers](docs/erosion.md) | How the `erosion` rule lets the ground change: uplift, valleys, hillslopes, the rivers it publishes and what a year means. |
 | [How it works](docs/how-it-works.md) | How the plugin fits go-simulator, what happens at every step, and how the pictures were made. |
-| [Rules reference](docs/rules.md) | The `relief` rule and its parameters, generated from the plugin's own description. |
+| [Rules reference](docs/rules.md) | The `relief` and `erosion` rules and their parameters, generated from the plugin's own description. |

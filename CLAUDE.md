@@ -1,6 +1,6 @@
 # go-simulator-terrain
 
-Terrain plugin for go-simulator: reads a relief once and publishes `elevation` and `slope`. Start with `docs/model.md`; parameters in `docs/rules.md`. Examples are in `examples/`.
+Terrain plugin for go-simulator: reads a relief and publishes `elevation` and `slope`; the `erosion` rule evolves it (uplift, stream power, creep) and publishes `drainage_area` and the rivers. Start with `docs/model.md`; parameters in `docs/rules.md`. Examples are in `examples/`.
 
 ## Commands
 
