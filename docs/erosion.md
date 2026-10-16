@@ -5,7 +5,7 @@ rivers cut their valleys deeper and the hillslopes round off, step after step, a
 out of where the water gathers. The other plugins read the changed ground, its drainage and its
 rivers from the world.
 
-![A made-up island at the start and after a million years: deeper valleys, sharper ridges, and the rivers drawn where the water gathers](img/erosion.png)
+![A made-up island at the start and after a million years: deeper valleys, sharper ridges, and the rivers drawn where the water gathers](images/erosion.png)
 
 *The example island (`examples/eroding-island.yaml`): each step stands for 10 000 years. The valleys
 deepen and branch, and the rivers grow longer as more ground drains into them.*

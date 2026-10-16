@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 520" width="880" height="520" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .box { fill: #f6f8fa; stroke: #d0d7de; }
+    .accent { fill: #ddf4ff; stroke: #54aeff; }
+    .title { fill: #1f2328; font-size: 15px; font-weight: 600; }
+    .text { fill: #59636e; font-size: 12.5px; }
+    .code { fill: #0969da; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .label { fill: #59636e; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .arrow { stroke: #8c959f; stroke-width: 1.6; fill: none; }
+    .head { fill: #8c959f; }
+    .axis { stroke: #0969da; stroke-width: 1.8; fill: none; }
+    .axishead { fill: #0969da; }
+    .grid { stroke: #d0d7de; stroke-width: 1; fill: none; }
+    .land { fill: #e6f0dc; stroke: #8fb07a; stroke-width: 1.2; }
+    .dot { fill: #cf222e; }
+    .centre { fill: #1f2328; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .box { fill: #161b22; stroke: #30363d; }
+      .accent { fill: #0c2d4b; stroke: #1f6feb; }
+      .title { fill: #e6edf3; }
+      .text { fill: #9198a1; }
+      .code { fill: #4493f8; }
+      .label { fill: #9198a1; }
+      .arrow { stroke: #6e7681; }
+      .head { fill: #6e7681; }
+      .axis { stroke: #4493f8; }
+      .axishead { fill: #4493f8; }
+      .grid { stroke: #30363d; }
+      .land { fill: #1f2e1c; stroke: #4f7a45; }
+      .dot { fill: #ff7b72; }
+      .centre { fill: #e6edf3; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="axis" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="axishead" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="520" rx="12"/>
+
+  <!-- go-scene-builder relief -->
+  <text class="title" x="40" y="36">A <tspan class="code">relieve.json</tspan> relief: kilometres east and north</text>
+  <rect class="box" x="24" y="52" width="396" height="270" rx="10" stroke-width="1.2"/>
+  <rect class="land" x="96" y="92" width="256" height="176"/>
+  <path class="grid" d="M128,92 V268 M160,92 V268 M192,92 V268 M224,92 V268 M256,92 V268 M288,92 V268 M320,92 V268 M96,124 H352 M96,156 H352 M96,188 H352 M96,220 H352 M96,252 H352"/>
+  <text class="label" x="96" y="84" text-anchor="start">north = 5.5</text>
+  <text class="label" x="88" y="104" text-anchor="end">west</text>
+  <text class="label" x="88" y="118" text-anchor="end">= 0</text>
+  <path class="axis" d="M70,290 H140" marker-end="url(#axis)"/>
+  <text class="label" x="146" y="294">east</text>
+  <path class="axis" d="M70,290 V230" marker-end="url(#axis)"/>
+  <text class="label" x="58" y="222" text-anchor="middle">north</text>
+  <text class="text" x="360" y="104">row 1 is</text>
+  <text class="text" x="360" y="120">the north</text>
+  <text class="text" x="360" y="232">a line</text>
+  <text class="text" x="360" y="248">every km;</text>
+  <text class="text" x="360" y="264">cells 0.05</text>
+  <circle class="dot" cx="224" cy="180" r="5"/>
+  <text class="label" x="232" y="174">origin [4, 2.75]</text>
+
+  <!-- arrow -->
+  <path class="arrow" d="M420,187 H460" marker-end="url(#arrow)"/>
+
+  <!-- the world -->
+  <text class="title" x="480" y="36">The world: <tspan class="code">x</tspan> to the east, <tspan class="code">z</tspan> to the south</text>
+  <rect class="box" x="464" y="52" width="392" height="270" rx="10" stroke-width="1.2"/>
+  <rect class="land" x="532" y="92" width="256" height="176"/>
+  <path class="axis" d="M660,180 H800" marker-end="url(#axis)"/>
+  <text class="label" x="806" y="184">x</text>
+  <path class="axis" d="M660,180 V292" marker-end="url(#axis)"/>
+  <text class="label" x="670" y="300">z</text>
+  <circle class="dot" cx="660" cy="180" r="5"/>
+  <text class="label" x="652" y="172" text-anchor="end">x = 0, z = 0</text>
+  <text class="label" x="532" y="84" text-anchor="start">x = −4, z = −2.75</text>
+  <text class="label" x="788" y="286" text-anchor="end">x = 4, z = 2.75</text>
+
+  <!-- formulas -->
+  <rect class="accent" x="160" y="336" width="560" height="44" rx="10" stroke-width="1.2"/>
+  <text class="code" x="320" y="363" text-anchor="middle">x = east − origin[0]</text>
+  <text class="code" x="560" y="363" text-anchor="middle">z = origin[1] − north</text>
+
+  <!-- npy -->
+  <text class="title" x="40" y="414">A <tspan class="code">.npy</tspan> relief: placed by its first cell</text>
+  <rect class="box" x="24" y="428" width="832" height="76" rx="10" stroke-width="1.2"/>
+  <path class="grid" d="M60,440 H220 M60,464 H220 M60,488 H220 M60,440 V488 M100,440 V488 M140,440 V488 M180,440 V488 M220,440 V488"/>
+  <circle class="centre" cx="80" cy="452" r="4"/>
+  <text class="text" x="240" y="456">the centre of the first cell sits at (<tspan class="code">minimum_x</tspan>, <tspan class="code">minimum_z</tspan>), the cells are</text>
+  <text class="text" x="240" y="476"><tspan class="code">cell_size</tspan> apart, rows go from the smallest z, all in world units: no origin, nothing flipped.</text>
+</svg>

@@ -1,17 +1,17 @@
-# Rules of the terrain plugin
+# 📋 Rules of the terrain plugin
 
-Version 0.2.0, protocol 1. Publishes the ground of a relief as fields of the world, elevation (m) and slope (m/m), and can evolve it: uplift, rivers and hillslopes.
+Version 0.2.0, protocol 2. Publishes the ground of a relief as fields of the world, elevation (m) and slope (m/m), and can evolve it: uplift, rivers and hillslopes.
 
 This reference is generated from what the plugin itself tells the host (the `describe` message), so it always
 matches the code. Parameters go under `with:` in a rules file; see go-simulator's
-[rules file reference](https://github.com/akrck02/go-simulator/blob/feature/simuladores-genericos/docs/rules-files.md).
+[rules file reference](https://github.com/akrck02/go-simulator/blob/main/docs/rules-files.md).
 
 | Rule | What it does |
 |---|---|
 | [`relief`](#relief) | Reads a relief and publishes, at the start, the fields elevation (metres) and slope (rise over run). |
 | [`erosion`](#erosion) | Evolves the ground the world already has: uplift, rivers that cut valleys (stream power) and hillslopes that round off (diffusion). Publishes elevation, slope, drainage_area (km²) and the rivers, at the start and as the ground changes. |
 
-## relief
+## `relief`
 
 Reads a relief and publishes, at the start, the fields elevation (metres) and slope (rise over run).
 
@@ -27,7 +27,7 @@ Reads a relief and publishes, at the start, the fields elevation (metres) and sl
 | `cell_size` | number |  | .npy reliefs: spacing of the cells (world units) |
 | `metres_per_unit` | number | `1000` | size of a world unit in metres, for the slope |
 
-## erosion
+## `erosion`
 
 Evolves the ground the world already has: uplift, rivers that cut valleys (stream power) and hillslopes that round off (diffusion). Publishes elevation, slope, drainage_area (km²) and the rivers, at the start and as the ground changes.
 
