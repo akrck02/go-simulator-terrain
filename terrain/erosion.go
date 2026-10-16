@@ -10,6 +10,10 @@ import (
 	"github.com/akrck02/go-simulator/world"
 )
 
+// FieldDrainageArea is the field of the ground that drains through every cell, in km² (0 on the
+// base level). It is this plugin's name for it: plugins that want it ask for "drainage_area".
+const FieldDrainageArea = "drainage_area"
+
 // Defaults of the erosion rule, from the literature (see docs/erosion.md): the rules file sets them
 // for its own place.
 const (
@@ -45,7 +49,7 @@ func erosionRule() plugin.Definition {
 				{Name: "metres_per_unit", Type: "number", Default: defaultMetresPerUnit, Summary: "size of a world unit in metres"},
 			},
 			Reads:  world.Interest{Fields: []string{world.FieldElevation}},
-			Writes: []string{world.FieldElevation, world.FieldSlope, world.FieldDrainageArea, world.KindRiver},
+			Writes: []string{world.FieldElevation, world.FieldSlope, FieldDrainageArea, world.KindRiver},
 		},
 		New: newErosion,
 	}
@@ -141,7 +145,7 @@ func (rule *erosionRuleInstance) publishDrainage(context *plugin.Context, routes
 			areas[index] = float32(area / 1e6)
 		}
 	}
-	context.SetField(rule.grid().Field(world.FieldDrainageArea, areas))
+	context.SetField(rule.grid().Field(FieldDrainageArea, areas))
 	rule.publishRivers(context, rule.land.riversOf(routes, rule.riverArea))
 }
 
@@ -188,7 +192,7 @@ func (rule *erosionRuleInstance) riverEntity(stretch river) *world.Entity {
 	width := riverWidth(areaSquareKilometres, rule.riverWidth) / rule.metresPerUnit
 	return &world.Entity{Identifier: world.Identifier(fmt.Sprintf("terrain-river-%d", stretch.head)), Kind: world.KindRiver,
 		Shape:      &world.Shape{Line: smooth(line, riverSmoothing), Width: float32(width), Batch: "terrain_rivers"},
-		Properties: map[string]any{"width": width, world.FieldDrainageArea: areaSquareKilometres}}
+		Properties: map[string]any{"width": width, FieldDrainageArea: areaSquareKilometres}}
 }
 
 // pairOr reads two numbers from a parameter, or gives the fallback.

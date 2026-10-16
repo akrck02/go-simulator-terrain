@@ -158,7 +158,7 @@ stages:
 	if _, err := engine.Start(); err != nil {
 		t.Fatal(err)
 	}
-	if engine.World.Field(world.FieldDrainageArea) == nil || len(engine.World.EntitiesOfKind(world.KindRiver)) == 0 {
+	if engine.World.Field(FieldDrainageArea) == nil || len(engine.World.EntitiesOfKind(world.KindRiver)) == 0 {
 		t.Fatal("the drainage and the rivers must be in the world before the first step")
 	}
 	before := append([]float32(nil), engine.World.Field(world.FieldElevation).Values...)
