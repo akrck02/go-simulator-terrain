@@ -50,6 +50,12 @@ func erosionRule() plugin.Definition {
 			},
 			Reads:  world.Interest{Fields: []string{world.FieldElevation}},
 			Writes: []string{world.FieldElevation, world.FieldSlope, FieldDrainageArea, world.KindRiver},
+			Publishes: append(slices.Clone(groundOutputs),
+				plugin.Field(FieldDrainageArea, "km²", "ground draining through each cell, 0 on the sea and the edges"),
+				plugin.Kind(world.KindRiver, "where the water gathers: a line with a width",
+					plugin.Property("width", "world", "how wide the river is where it ends"),
+					plugin.Property(FieldDrainageArea, "km²", "ground draining into the river where it ends"))),
+			Expects: []protocol.InputDescription{plugin.NeedsField(world.FieldElevation, "m")},
 		},
 		New: newErosion,
 	}

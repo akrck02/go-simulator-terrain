@@ -24,6 +24,12 @@ func Plugin() *plugin.Plugin {
 	}
 }
 
+// groundOutputs are the fields both rules publish.
+var groundOutputs = []protocol.OutputDescription{
+	plugin.Field(world.FieldElevation, "m", "height of the ground"),
+	plugin.Field(world.FieldSlope, "m/m", "steepness of the ground, rise over run"),
+}
+
 func reliefRule() plugin.Definition {
 	return plugin.Definition{
 		Description: protocol.RuleDescription{
@@ -37,7 +43,8 @@ func reliefRule() plugin.Definition {
 				{Name: "cell_size", Type: "number", Summary: ".npy reliefs: spacing of the cells (world units)"},
 				{Name: "metres_per_unit", Type: "number", Default: defaultMetresPerUnit, Summary: "size of a world unit in metres, for the slope"},
 			},
-			Writes: []string{world.FieldElevation, world.FieldSlope},
+			Writes:    []string{world.FieldElevation, world.FieldSlope},
+			Publishes: groundOutputs,
 		},
 		New: newRelief,
 	}

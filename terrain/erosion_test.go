@@ -155,6 +155,9 @@ stages:
 		t.Fatal(err)
 	}
 	defer engine.Close()
+	if len(engine.Warnings) > 0 {
+		t.Fatalf("the relief and erosion rules should agree on their contracts: %v", engine.Warnings)
+	}
 	if _, err := engine.Start(); err != nil {
 		t.Fatal(err)
 	}
