@@ -1,0 +1,18 @@
+# A made-up island, 8 × 8 km and about 900 m high (island.npy next to this file), worn down by its rivers for a
+# million years: each step of the clock stands for 10 000 years. Only to show the plugin: nothing here comes from any
+# world.
+#
+#   cd ../../go-simulator && go run ./cmd/simulate -rules ../go-simulator-terrain/examples/eroding-island.yaml -output results/
+plugins:
+  - {name: terrain, command: [go, run, .], directory: ..}
+
+stages:
+  - name: island
+    clock: {unit: year, from: 0, to: 100, step: 1}
+    snapshots: [0, 100]
+    snapshot_fields: [elevation, drainage_area]
+    rules:
+      - rule: relief
+        with: {path: island.npy, minimum_x: -4, minimum_z: -4, cell_size: 0.05}
+      - rule: erosion
+        with: {years_per_unit: 10000, uplift: 0.0002, erodibility: 0.000002, diffusivity: 0.005, river_area: 0.3, random_receivers: true}

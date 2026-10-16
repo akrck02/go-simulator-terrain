@@ -9,7 +9,7 @@ import (
 )
 
 // Version of the plugin.
-const Version = "0.1.0"
+const Version = "0.2.0"
 
 // defaultMetresPerUnit is the size of a world unit in metres: the scenes are in kilometres.
 const defaultMetresPerUnit = 1000
@@ -19,8 +19,8 @@ func Plugin() *plugin.Plugin {
 	return &plugin.Plugin{
 		Name:    "terrain",
 		Version: Version,
-		Summary: "Publishes the ground of a relief as fields of the world: elevation (m) and slope (m/m).",
-		Rules:   []plugin.Definition{reliefRule()},
+		Summary: "Publishes the ground of a relief as fields of the world, elevation (m) and slope (m/m), and can evolve it: uplift, rivers and hillslopes.",
+		Rules:   []plugin.Definition{reliefRule(), erosionRule()},
 	}
 }
 

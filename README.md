@@ -6,7 +6,9 @@
 
 A [go-simulator](https://github.com/akrck02/go-simulator) plugin that publishes the ground: it reads a relief once and puts
 it in the world as the fields `elevation` (metres) and `slope`, so the other plugins read the same
-ground from the world instead of each one loading its own file.
+ground from the world instead of each one loading its own file. Its `erosion` rule lets that
+ground change: the land rises, rivers cut valleys and hillslopes round off, and the rivers it
+finds go into the world too.
 
 ```yaml
 plugins:
@@ -18,8 +20,8 @@ stages:
       - {rule: relief, with: {path: relieve.json, origin: [6, 4.5]}}
 ```
 
-Documentation in [docs/](docs/README.md): [reliefs and fields](docs/model.md) and the
-[rules reference](docs/rules.md).
+Documentation in [docs/](docs/README.md): [reliefs and fields](docs/model.md),
+[erosion and rivers](docs/erosion.md) and the [rules reference](docs/rules.md).
 
 ## AI disclosure
 
