@@ -2,6 +2,7 @@
 
 | | Page | What is in it |
 |---|---|---|
+| 🏴‍☠️ | [The terrain quest](quest.md) | Shape an island with water and time in 5 levels: your own relief, rivers, uplift, wandering valleys, the sea. |
 | 🚀 | [Getting started](getting-started.md) | The folders it needs, running the example, using your own relief, the files a run writes, and the tests. |
 | 🏔️ | [Reliefs and fields](model.md) | What it publishes and where the values sit, how the slope is measured, the two relief formats and how each lies on the world, with pictures. |
 | 🌊 | [Erosion and rivers](erosion.md) | How the `erosion` rule lets the ground change: uplift, valleys, hillslopes, the rivers it publishes and what a year means. |
