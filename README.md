@@ -104,6 +104,7 @@ ground evolves every step and is published again with its drainage and rivers.
 
 | | |
 |---|---|
+| [The terrain quest](docs/quest.md) | Shape an island with water and time in 5 levels. |
 | [Getting started](docs/getting-started.md) | The folders it needs, the example, your own relief, the output files and the tests. |
 | [Reliefs and fields](docs/model.md) | What it publishes, how the slope is measured, the two relief formats and how they lie on the world. |
 | [Erosion and rivers](docs/erosion.md) | How the `erosion` rule lets the ground change: uplift, valleys, hillslopes, the rivers it publishes and what a year means. |
