@@ -12,14 +12,14 @@ once and puts it in the world for everyone.
 </picture>
 </p>
 
-<p align="center"><sub>A made-up island as the other plugins see it: the height of every cell, and how steep it is. Drawn from a real run (see <a href="how-it-works.md#how-the-pictures-were-made">how the pictures were made</a>).</sub></p>
+<p align="center"><sub>A made-up island as the other plugins see it: the height of every cell, and how steep it is. Drawn from a real run (see <a href="6-how-it-works.md#how-the-pictures-were-made">how the pictures were made</a>).</sub></p>
 
 Put it first in the rules file: plugins start in order, so the ones after it find the ground
 already there.
 
 ## What it publishes
 
-At the start, two fields of the [vocabulary](https://github.com/akrck02/go-simulator/blob/main/docs/vocabulary.md):
+At the start, two fields of the [vocabulary](https://github.com/akrck02/go-simulator/blob/main/docs/5-reference/1-vocabulary-and-conditions.md):
 
 | Field | Unit | How |
 |---|---|---|
@@ -28,7 +28,7 @@ At the start, two fields of the [vocabulary](https://github.com/akrck02/go-simul
 
 Values sit at cell centres, rows from the smallest z and columns from the smallest x. The `relief`
 rule publishes them once: on its own the ground does not change, so later steps publish nothing.
-To let it change, add the [`erosion` rule](erosion.md) after it: the land rises, the rivers cut
+To let it change, add the [`erosion` rule](5-erosion-and-rivers.md) after it: the land rises, the rivers cut
 their valleys and the hillslopes round off, and the rule publishes the ground again as it changes,
 with `drainage_area` and the rivers.
 

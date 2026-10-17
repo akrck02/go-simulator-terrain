@@ -8,22 +8,22 @@
 
 go-simulator is the host. It keeps the world and moves the clock. The terrain plugin is a separate
 program the host starts; they talk over standard input and output (go-simulator's
-[protocol](https://github.com/akrck02/go-simulator/blob/main/docs/protocol.md)).
+[protocol](https://github.com/akrck02/go-simulator/blob/main/docs/5-reference/2-protocol.md)).
 
 - At the start the plugin **describes** itself: one rule, `relief`, its parameters, that it reads
   nothing from other plugins and that it writes `elevation` and `slope`. That description is also
-  where the [rules reference](rules.md) comes from.
+  where the [rules reference](7-rules-reference.md) comes from.
 - When the stage starts, the rule reads the relief, lays it on the world (see
-  [formats](model.md#formats)), measures the slope of every cell (see
-  [how the slope is measured](model.md#how-the-slope-is-measured)) and sets both fields.
+  [formats](4-reliefs-and-fields.md#formats)), measures the slope of every cell (see
+  [how the slope is measured](4-reliefs-and-fields.md#how-the-slope-is-measured)) and sets both fields.
 - Other plugins read the ground from the world, as the fields `elevation` and `slope`, instead of
   loading the file themselves. Put the terrain plugin first: plugins start in order, so the ones
   after it find the ground already there.
 
 A plugin never touches the renderer: it reads its copy of the world and answers with changes
-(go-simulator's [writing plugins](https://github.com/akrck02/go-simulator/blob/main/docs/writing-plugins.md)).
+(go-simulator's [writing plugins](https://github.com/akrck02/go-simulator/blob/main/docs/4-guides/4-writing-plugins.md)).
 Fields are in physical units and shapes in world units, as go-simulator's
-[vocabulary](https://github.com/akrck02/go-simulator/blob/main/docs/vocabulary.md) lists.
+[vocabulary](https://github.com/akrck02/go-simulator/blob/main/docs/5-reference/1-vocabulary-and-conditions.md) lists.
 
 ## What happens at every step
 
@@ -34,7 +34,7 @@ Fields are in physical units and shapes in world units, as go-simulator's
 On its own the ground does not change with time. The `relief` rule publishes it once, when the
 stage starts, so every plugin has it before its first step; if a host did not call the start, the
 first step publishes it instead. Every later step answers with nothing. The
-[`erosion` rule](erosion.md), put after it, is the one that changes the ground over the steps.
+[`erosion` rule](5-erosion-and-rivers.md), put after it, is the one that changes the ground over the steps.
 
 The picture is a real run: a stage from 0 to 3 with the island of the other pages, where
 `simulate` printed `0 changes` for every step and the snapshots taken after steps 1 and 3 hold
@@ -55,4 +55,4 @@ light and dark colours. They are 2D drawings, not screenshots of go-simulator's 
 draws the scene's own ground, not these fields. The diagrams (how it fits, the slope of a row,
 placing a relief, the steps) were drawn by hand in the same style; the numbers in the slope diagram
 were checked against the plugin's own code. The older island further down
-[reliefs and fields](model.md#what-it-publishes) comes from the earlier docs.
+[reliefs and fields](4-reliefs-and-fields.md#what-it-publishes) comes from the earlier docs.
