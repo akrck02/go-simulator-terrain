@@ -13,10 +13,10 @@ program the host starts; they talk over standard input and output (go-simulator&
 <ul>
 <li>At the start the plugin <strong>describes</strong> itself: one rule, <code>relief</code>, its parameters, that it reads
 nothing from other plugins and that it writes <code>elevation</code> and <code>slope</code>. That description is also
-where the <a href="./7-rules-reference">rules reference</a> comes from.</li>
+where the <a href="./rules-reference">rules reference</a> comes from.</li>
 <li>When the stage starts, the rule reads the relief, lays it on the world (see
-<a href="./4-reliefs-and-fields">formats</a>), measures the slope of every cell (see
-<a href="./4-reliefs-and-fields">how the slope is measured</a>) and sets both fields.</li>
+<a href="./reliefs-and-fields">formats</a>), measures the slope of every cell (see
+<a href="./reliefs-and-fields">how the slope is measured</a>) and sets both fields.</li>
 <li>Other plugins read the ground from the world, as the fields <code>elevation</code> and <code>slope</code>, instead of
 loading the file themselves. Put the terrain plugin first: plugins start in order, so the ones
 after it find the ground already there.</li>
@@ -36,7 +36,7 @@ Fields are in physical units and shapes in world units, as go-simulator&rsquo;s
 <p>On its own the ground does not change with time. The <code>relief</code> rule publishes it once, when the
 stage starts, so every plugin has it before its first step; if a host did not call the start, the
 first step publishes it instead. Every later step answers with nothing. The
-<a href="./5-erosion-and-rivers"><code>erosion</code> rule</a>, put after it, is the one that changes the ground over the steps.</p>
+<a href="./erosion-and-rivers"><code>erosion</code> rule</a>, put after it, is the one that changes the ground over the steps.</p>
 
 <p>The picture is a real run: a stage from 0 to 3 with the island of the other pages, where
 <code>simulate</code> printed <code>0 changes</code> for every step and the snapshots taken after steps 1 and 3 hold
@@ -57,4 +57,4 @@ light and dark colours. They are 2D drawings, not screenshots of go-simulator&rs
 draws the scene&rsquo;s own ground, not these fields. The diagrams (how it fits, the slope of a row,
 placing a relief, the steps) were drawn by hand in the same style; the numbers in the slope diagram
 were checked against the plugin&rsquo;s own code. The older island further down
-<a href="./4-reliefs-and-fields">reliefs and fields</a> comes from the earlier docs.</p>
+<a href="./reliefs-and-fields">reliefs and fields</a> comes from the earlier docs.</p>
