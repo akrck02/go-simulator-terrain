@@ -56,8 +56,8 @@ The example does not come with a relief. Put one next to it, either way:
   with: {path: relief.npy, minimum_x: -1, minimum_z: -1, cell_size: 0.0125}
 ```
 
-(One rule or the other, not both.) [Reliefs and fields](model.md#formats) explains every key, and
-the [rules reference](rules.md) lists them all.
+(One rule or the other, not both.) [Reliefs and fields](4-reliefs-and-fields.md#formats) explains every key, and
+the [rules reference](7-rules-reference.md) lists them all.
 
 ## What a run writes
 

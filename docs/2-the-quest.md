@@ -214,7 +214,7 @@ Add a second cone to `height`: `+ 500*math.Pow(math.Max(0, 1-math.Hypot(east-2, 
 
 ![Achievement unlocked: Surveyor](images/quest/achievement-surveyor.svg)
 
-Learn more: [Reliefs and fields](model.md#formats) · [Rules](rules.md#relief)
+Learn more: [Reliefs and fields](4-reliefs-and-fields.md#formats) · [Rules](7-rules-reference.md#relief)
 
 ---
 
@@ -277,7 +277,7 @@ to the sea.
 
 ![Achievement unlocked: Rainmaker](images/quest/achievement-rainmaker.svg)
 
-Learn more: [How it works](how-it-works.md) · [Erosion](erosion.md)
+Learn more: [How it works](6-how-it-works.md) · [Erosion](5-erosion-and-rivers.md)
 
 ---
 
@@ -391,7 +391,7 @@ it, the valleys reach down to it.
 
 ![Achievement unlocked: Coast keeper](images/quest/achievement-coast-keeper.svg)
 
-Learn more: [Rules: erosion](rules.md#erosion)
+Learn more: [Rules: erosion](7-rules-reference.md#erosion)
 
 ---
 
@@ -458,4 +458,4 @@ geomorphologists use.
 
 ---
 
-[← All the documentation](README.md)
+[← All the documentation](1-overview.md)
