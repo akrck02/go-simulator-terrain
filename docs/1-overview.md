@@ -1,3 +1,5 @@
+<p align="center"><img alt="" src="images/logo.svg" width="120"></p>
+
 # Welcome to go-simulator-terrain 👋
 
 **The terrain plugin gives a simulated world its ground**, and lets rivers carve it over thousands of years: valleys, ridges, coasts.
