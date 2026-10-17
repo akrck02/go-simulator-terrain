@@ -1,0 +1,124 @@
+<h1 id="reliefs-and-fields">🏔️ Reliefs and fields</h1>
+
+<p>Almost every simulator needs to know the shape of the land: the climate to know where it is cold,
+the forests to know where it is too steep, the town to know where it can build. Instead of each one
+loading its own copy of the relief (and maybe disagreeing about it), the terrain plugin reads it
+once and puts it in the world for everyone.</p>
+
+<p align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/fields-dark.png">
+  <img alt="A made-up island's two fields side by side with their colour scales: elevation from the sea floor at −60 m to the peak at about 760 m, and slope from 0 on the flats to about 1.2 on the peak's flanks, with a dashed line A–B across both" src="images/fields-light.png" width="880">
+</picture>
+</p>
+
+<p align="center"><sub>A made-up island as the other plugins see it: the height of every cell, and how steep it is. Drawn from a real run (see <a href="how-it-works.md#how-the-pictures-were-made">how the pictures were made</a>).</sub></p>
+
+<p>Put it first in the rules file: plugins start in order, so the ones after it find the ground
+already there.</p>
+
+<h2 id="what-it-publishes">What it publishes</h2>
+
+<p>At the start, two fields of the <a href="https://github.com/akrck02/go-simulator/blob/main/docs/vocabulary.md" target="_blank">vocabulary</a>:</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Unit</th>
+<th>How</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>elevation</code></td>
+<td>metres</td>
+<td>the relief&rsquo;s heights, untouched</td>
+</tr>
+
+<tr>
+<td><code>slope</code></td>
+<td>rise over run</td>
+<td>the gradient like <code>numpy.gradient</code>: central differences inside, one-sided at the edges</td>
+</tr>
+</tbody>
+</table>
+<p>Values sit at cell centres, rows from the smallest z and columns from the smallest x. The <code>relief</code>
+rule publishes them once: on its own the ground does not change, so later steps publish nothing.
+To let it change, add the <a href="./erosion"><code>erosion</code> rule</a> after it: the land rises, the rivers cut
+their valleys and the hillslopes round off, and the rule publishes the ground again as it changes,
+with <code>drainage_area</code> and the rivers.</p>
+
+<p>Another made-up island, shaded, and its two fields:</p>
+
+<table>
+<tr>
+<th width="50%">The island, shaded</th>
+<th width="50%">Its two fields</th>
+</tr>
+<tr>
+<td><img alt="A small made-up island, shaded and coloured by height, with a snowy peak in the north-east and a low hill in the south" src="images/relief.jpg"></td>
+<td><img alt="The same island's elevation, up to about 1,600 m, and its slope, steepest around the peak" src="images/terrain_fields.png"></td>
+</tr>
+</table>
+
+<h2 id="how-the-slope-is-measured">How the slope is measured</h2>
+
+<p align="center">
+  <img alt="A row of six cells with heights 10, 14, 20, 28, 30 and 31 metres, 50 m apart. The first cell takes the next one minus itself, (14 − 10) / 50 = 0.08; a cell inside takes half the difference between its neighbours, (28 − 14) / 2 / 50 = 0.14; the last takes itself minus the one before, (31 − 30) / 50 = 0.02. The same along the columns gives a second rise over run, and the slope is the length of the two" src="images/slope.svg" width="880">
+</p>
+
+<p>Every cell gets two rises over run, one along the row (x) and one along the column (z), taken like
+<code>numpy.gradient</code>: half the difference between the two neighbours inside the grid, and the
+difference with the only neighbour at the edges. The slope is the length of those two,
+<code>√(along_x² + along_z²)</code>. The numbers in the picture are what the plugin&rsquo;s own code gives for that
+row.</p>
+
+<p>The distance between cells is in metres, so the slope is a true rise over run: the cell size in
+world units times <code>metres_per_unit</code> (1000 by default, for scenes in kilometres). A slope of 1 is a
+45° flank.</p>
+
+<p align="center">
+  <img alt="Along the line A–B of the island: the elevation rises from the sea floor in the west, over low ground of about 100 to 150 m, to the peak at about 760 m, and down to the sea in the east; below it the slope stays under 0.3 on the low ground, climbs to between 0.7 and 0.9 on the flanks and drops to almost 0 on the summit" src="images/profile.svg" width="880">
+</p>
+
+<p align="center"><sub>One row of the island's two fields, along the dashed line A–B in the picture at the top. The slope is highest on the flanks and drops on the rounded summit, where the neighbours on both sides are lower.</sub></p>
+
+<h2 id="formats">Formats</h2>
+
+<p>The rule tells the two apart by the end of <code>path</code>: <code>.json</code> or <code>.npy</code>.</p>
+
+<p align="center">
+  <img alt="Left: a relieve.json relief in kilometres east and north, with west = 0 and north = 5.5 on its edges, row 1 at the north, and the origin [4, 2.75] marked in the middle. Right: the same grid on the world, x to the east and z to the south, the origin now at x = 0, z = 0 and the corners at x = −4, z = −2.75 and x = 4, z = 2.75. Between them: x = east − origin[0], z = origin[1] − north. Below: a .npy relief is placed by the centre of its first cell, minimum_x and minimum_z, and its cell_size" src="images/placement.svg" width="880">
+</p>
+
+<h3 id="go-scene-builder-s-relief">go-scene-builder&rsquo;s relief</h3>
+
+<p><code>relieve.json</code>, <code>{&quot;columns&quot;, &quot;rows&quot;, &quot;cell&quot;, &quot;west&quot;, &quot;north&quot;, &quot;units&quot;}</code>, with the heights in metres
+as little-endian float32 in <code>relieve.f32</code> next to it, row by row from the north. Its coordinates
+are kilometres east and north; <code>origin</code> places it on the world: <code>x = east − origin[0]</code>,
+<code>z = origin[1] − north</code>. Rows go from the north, which is the smallest z, so no row is flipped.</p>
+<pre><code class="language-yaml">- <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+  <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relieve.json, origin</span><span class="p">:</span> <span class="p">[</span><span class="m">6</span><span class="p">,</span> <span class="m">4.5</span><span class="p">]</span>}
+</code></pre>
+
+<h3 id="numpy-array">NumPy array</h3>
+
+<p>A two-dimensional <code>.npy</code> of float32 or float64 heights in metres, rows from the smallest z, placed
+by the centre of its first cell and the spacing of its cells, in world units.</p>
+<pre><code class="language-yaml">- <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+  <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relief.npy, minimum_x</span><span class="p">:</span> <span class="nt">-1, minimum_z</span><span class="p">:</span> <span class="nt">-1, cell_size</span><span class="p">:</span> <span class="m">0.0125</span>}
+</code></pre>
+
+<p><code>metres_per_unit</code> (1000 for scenes in kilometres) turns the cell size into metres for the slope.</p>
+
+<p>The island in these pictures was written both ways, as a <code>relieve.json</code> with <code>origin: [4, 2.75]</code>
+and as a <code>.npy</code> with <code>minimum_x: -3.975</code>, <code>minimum_z: -2.725</code> and <code>cell_size: 0.05</code>; the two runs
+published byte-identical fields.</p>
+
+<h2 id="exactness">Exactness</h2>
+
+<p>The field&rsquo;s extent is float64, so a plugin that rebuilds the grid from the field gets the same
+cell size and cell centres as the file. This matters for simulations that are sensitive to their
+inputs: a tenth of a millimetre of difference in the heights can grow a different town.</p>

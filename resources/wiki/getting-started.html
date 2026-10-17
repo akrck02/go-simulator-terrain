@@ -1,0 +1,111 @@
+<h1 id="getting-started">🚀 Getting started</h1>
+
+<h2 id="the-folders-it-needs">The folders it needs</h2>
+
+<p>The plugin is developed next to go-simulator and the libraries it uses: <code>go.mod</code> replaces them
+with the folders beside this one. Clone them side by side:</p>
+<pre><code class="language-text">go-simulator/            the host: runs the rules files
+go-simulator-terrain/    this plugin
+go-scene-builder/        reads relieve.json reliefs
+go-renderer/             used by go-simulator&#39;s viewer
+</code></pre>
+
+<h2 id="running-the-example">Running the example</h2>
+
+<p><code>examples/ground.yaml</code> starts the plugin and runs one stage whose only rule is <code>relief</code>:</p>
+<pre><code class="language-yaml"><span class="nt">plugins</span><span class="p">:</span>
+  - <span class="nt">name</span><span class="p">:</span> <span class="l">terrain</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p">[</span><span class="l">go, run, .]</span>
+    <span class="nt">directory</span><span class="p">:</span> <span class="l">..</span>
+
+<span class="nt">stages</span><span class="p">:</span>
+  - <span class="nt">name</span><span class="p">:</span> <span class="l">ground</span>
+    <span class="nt">clock</span><span class="p">:</span> {<span class="nt">from</span><span class="p">:</span> <span class="nt">0, to</span><span class="p">:</span> <span class="nt">1, step</span><span class="p">:</span> <span class="m">1</span>}
+    <span class="nt">snapshots</span><span class="p">:</span> <span class="p">[</span><span class="m">1</span><span class="p">]</span>
+    <span class="nt">rules</span><span class="p">:</span>
+      - <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+        <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relieve.json, origin</span><span class="p">:</span> <span class="p">[</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">]</span>}
+</code></pre>
+
+<p>Run it from go-simulator without a window:</p>
+<pre><code class="language-bash"><span class="nb">cd</span> ../go-simulator
+go run ./cmd/simulate -rules ../go-simulator-terrain/examples/ground.yaml -output results/
+</code></pre>
+
+<p>Relative paths start at the rules file&rsquo;s folder, so <code>relieve.json</code> is looked for in <code>examples/</code>.</p>
+
+<h2 id="your-own-relief">Your own relief</h2>
+
+<p>The example does not come with a relief. Put one next to it, either way:</p>
+
+<ul>
+<li><strong>go-scene-builder&rsquo;s relief</strong>: <code>relieve.json</code> and <code>relieve.f32</code> side by side, placed on the world
+with <code>origin</code>.</li>
+<li><strong>A NumPy array</strong>: a <code>.npy</code> of heights in metres, placed with <code>minimum_x</code>, <code>minimum_z</code> and
+<code>cell_size</code>.</li>
+</ul>
+<pre><code class="language-yaml">- <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+  <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relieve.json, origin</span><span class="p">:</span> <span class="p">[</span><span class="m">6</span><span class="p">,</span> <span class="m">4.5</span><span class="p">]</span>}
+- <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+  <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relief.npy, minimum_x</span><span class="p">:</span> <span class="nt">-1, minimum_z</span><span class="p">:</span> <span class="nt">-1, cell_size</span><span class="p">:</span> <span class="m">0.0125</span>}
+</code></pre>
+
+<p>(One rule or the other, not both.) <a href="./model">Reliefs and fields</a> explains every key, and
+the <a href="./rules">rules reference</a> lists them all.</p>
+
+<h2 id="what-a-run-writes">What a run writes</h2>
+
+<p>At every time a stage lists in <code>snapshots</code>, <code>simulate</code> writes each field as a grid: a JSON header
+and its values as little-endian float32, row by row, the relief format of go-scene-builder. For the
+example, in <code>results/</code>:</p>
+
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Content</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>ground 1 elevation.json</code> + <code>.f32</code></td>
+<td>the heights in metres, the relief&rsquo;s own values</td>
+</tr>
+
+<tr>
+<td><code>ground 1 slope.json</code> + <code>.f32</code></td>
+<td>the slope of every cell, rise over run</td>
+</tr>
+
+<tr>
+<td><code>ground 1.geojson</code></td>
+<td>the entities with a ground shape (none from this plugin)</td>
+</tr>
+
+<tr>
+<td><code>events.jsonl</code></td>
+<td>the events (none from this plugin)</td>
+</tr>
+</tbody>
+</table>
+<p>The header gives <code>columns</code>, <code>rows</code>, <code>cell</code> and the <code>extent</code> in world units, so the files can be
+read back as a relief or drawn as a map, as the pictures in these pages were.</p>
+
+<h2 id="the-tests">The tests</h2>
+<pre><code class="language-bash">go vet ./...
+go <span class="nb">test</span> ./...
+</code></pre>
+
+<p>The tests check both formats on small synthetic reliefs, the slope of a plane, and that the fields
+reach the world before the first step. For erosion they check that no water is lost or made on the
+way to the sea, that hollows drain, that uplift and erosion settle where the stream power law says
+(S = (U/K)·A^−m), that creep never overshoots however long the step, that the sea does not move,
+that the same seed gives the same valleys, that every rule describes its contracts, and that the
+ground, its drainage and its rivers reach the world and change over the steps.</p>
+
+<p><code>examples/eroding-island.yaml</code> runs the erosion on a made-up island that comes with it
+(<code>island.npy</code>), a million years in 100 steps:</p>
+<pre><code class="language-bash"><span class="nb">cd</span> ../go-simulator
+go run ./cmd/simulate -rules ../go-simulator-terrain/examples/eroding-island.yaml -output results/
+</code></pre>

@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 340" width="880" height="340" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .box { fill: #f6f8fa; stroke: #d0d7de; }
+    .accent { fill: #ddf4ff; stroke: #54aeff; }
+    .title { fill: #1f2328; font-size: 15px; font-weight: 600; }
+    .text { fill: #59636e; font-size: 12.5px; }
+    .code { fill: #0969da; font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .label { fill: #59636e; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .arrow { stroke: #8c959f; stroke-width: 1.6; fill: none; }
+    .head { fill: #8c959f; }
+    .field { fill: #ffffff; stroke: #d0d7de; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .box { fill: #161b22; stroke: #30363d; }
+      .accent { fill: #0c2d4b; stroke: #1f6feb; }
+      .title { fill: #e6edf3; }
+      .text { fill: #9198a1; }
+      .code { fill: #4493f8; }
+      .label { fill: #9198a1; }
+      .arrow { stroke: #6e7681; }
+      .head { fill: #6e7681; }
+      .field { fill: #0d1117; stroke: #30363d; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="head" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="880" height="340" rx="12"/>
+
+  <!-- inputs -->
+  <rect class="box" x="24" y="40" width="180" height="110" rx="10" stroke-width="1.2"/>
+  <text class="code" x="114" y="68" text-anchor="middle">rules.yaml</text>
+  <text class="title" x="114" y="92" text-anchor="middle">The rules file</text>
+  <text class="text" x="114" y="114" text-anchor="middle">a relief rule: the path</text>
+  <text class="text" x="114" y="131" text-anchor="middle">and where it lies</text>
+
+  <rect class="box" x="24" y="190" width="180" height="110" rx="10" stroke-width="1.2"/>
+  <text class="code" x="114" y="218" text-anchor="middle">relieve.json · .npy</text>
+  <text class="title" x="114" y="242" text-anchor="middle">The relief</text>
+  <text class="text" x="114" y="264" text-anchor="middle">a grid of heights</text>
+  <text class="text" x="114" y="281" text-anchor="middle">in metres</text>
+
+  <!-- the plugin -->
+  <path class="arrow" d="M204,95 C228,95 228,140 252,140" marker-end="url(#arrow)"/>
+  <path class="arrow" d="M204,245 C228,245 228,200 252,200" marker-end="url(#arrow)"/>
+  <text class="label" x="228" y="166" text-anchor="middle">read</text>
+  <text class="label" x="228" y="180" text-anchor="middle">once</text>
+  <rect class="accent" x="256" y="70" width="220" height="200" rx="10" stroke-width="1.4"/>
+  <text class="code" x="366" y="98" text-anchor="middle">go-simulator-terrain</text>
+  <text class="title" x="366" y="122" text-anchor="middle">The terrain plugin</text>
+  <text class="text" x="366" y="148" text-anchor="middle">places the grid on the world</text>
+  <text class="text" x="366" y="166" text-anchor="middle">measures the slope of</text>
+  <text class="text" x="366" y="183" text-anchor="middle">every cell</text>
+  <text class="label" x="366" y="214" text-anchor="middle">rule: relief</text>
+  <text class="label" x="366" y="234" text-anchor="middle">at the start, then never again</text>
+
+  <!-- the host -->
+  <path class="arrow" d="M476,140 H536" marker-end="url(#arrow)"/>
+  <text class="label" x="506" y="130" text-anchor="middle">fields</text>
+  <path class="arrow" d="M536,200 H476" marker-end="url(#arrow)"/>
+  <text class="label" x="506" y="220" text-anchor="middle">start</text>
+  <text class="label" x="506" y="174" text-anchor="middle">stdio</text>
+  <rect class="box" x="540" y="40" width="160" height="260" rx="10" stroke-width="1.2"/>
+  <text class="code" x="620" y="68" text-anchor="middle">go-simulator</text>
+  <text class="title" x="620" y="92" text-anchor="middle">The host</text>
+  <text class="text" x="620" y="114" text-anchor="middle">keeps the world</text>
+  <rect class="field" x="558" y="134" width="124" height="68" rx="8" stroke-width="1"/>
+  <text class="text" x="620" y="154" text-anchor="middle">the world's fields</text>
+  <text class="code" x="620" y="174" text-anchor="middle">elevation (m)</text>
+  <text class="code" x="620" y="192" text-anchor="middle">slope</text>
+  <text class="text" x="620" y="232" text-anchor="middle">the same grid for</text>
+  <text class="text" x="620" y="249" text-anchor="middle">everyone</text>
+
+  <!-- readers -->
+  <path class="arrow" d="M700,110 H736" marker-end="url(#arrow)"/>
+  <path class="arrow" d="M700,235 H736" marker-end="url(#arrow)"/>
+  <rect class="box" x="740" y="50" width="116" height="120" rx="10" stroke-width="1.2"/>
+  <text class="title" x="798" y="80" text-anchor="middle">Other</text>
+  <text class="title" x="798" y="98" text-anchor="middle">plugins</text>
+  <text class="text" x="798" y="122" text-anchor="middle">read the ground</text>
+  <text class="text" x="798" y="139" text-anchor="middle">from the world,</text>
+  <text class="text" x="798" y="156" text-anchor="middle">not from a file</text>
+  <rect class="box" x="740" y="190" width="116" height="110" rx="10" stroke-width="1.2"/>
+  <text class="title" x="798" y="220" text-anchor="middle">Snapshots</text>
+  <text class="text" x="798" y="244" text-anchor="middle">every field as a</text>
+  <text class="text" x="798" y="261" text-anchor="middle">grid file, from</text>
+  <text class="code" x="798" y="280" text-anchor="middle">simulate</text>
+</svg>

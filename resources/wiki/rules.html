@@ -1,0 +1,198 @@
+<h1 id="rules-of-the-terrain-plugin">📋 Rules of the terrain plugin</h1>
+
+<p>Version 0.2.0, protocol 2. Publishes the ground of a relief as fields of the world, elevation (m) and slope (m/m), and can evolve it: uplift, rivers and hillslopes.</p>
+
+<p>This reference is generated from what the plugin itself tells the host (the <code>describe</code> message), so it always
+matches the code. Parameters go under <code>with:</code> in a rules file; see go-simulator&rsquo;s
+<a href="https://github.com/akrck02/go-simulator/blob/main/docs/rules-files.md" target="_blank">rules file reference</a>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>What it does</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><a href="#relief"><code>relief</code></a></td>
+<td>Reads a relief and publishes, at the start, the fields elevation (metres) and slope (rise over run).</td>
+</tr>
+
+<tr>
+<td><a href="#erosion"><code>erosion</code></a></td>
+<td>Evolves the ground the world already has: uplift, rivers that cut valleys (stream power) and hillslopes that round off (diffusion). Publishes elevation, slope, drainage_area (km²) and the rivers, at the start and as the ground changes.</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="relief"><code>relief</code></h2>
+
+<p>Reads a relief and publishes, at the start, the fields elevation (metres) and slope (rise over run).</p>
+
+<ul>
+<li><strong>Reads:</strong> nothing from other plugins</li>
+<li><strong>Writes:</strong> <code>elevation</code>, <code>slope</code></li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>path</code></td>
+<td>text</td>
+<td></td>
+<td>relief: relieve.json (with relieve.f32 next to it) or a .npy array of heights in metres</td>
+</tr>
+
+<tr>
+<td><code>origin</code></td>
+<td>list</td>
+<td></td>
+<td>.json reliefs: [east, north] of the world&rsquo;s origin; x = east − origin[0], z = origin[1] − north</td>
+</tr>
+
+<tr>
+<td><code>minimum_x</code></td>
+<td>number</td>
+<td></td>
+<td>.npy reliefs: x of the first column&rsquo;s cell centres (world units)</td>
+</tr>
+
+<tr>
+<td><code>minimum_z</code></td>
+<td>number</td>
+<td></td>
+<td>.npy reliefs: z of the first row&rsquo;s cell centres (world units)</td>
+</tr>
+
+<tr>
+<td><code>cell_size</code></td>
+<td>number</td>
+<td></td>
+<td>.npy reliefs: spacing of the cells (world units)</td>
+</tr>
+
+<tr>
+<td><code>metres_per_unit</code></td>
+<td>number</td>
+<td><code>1000</code></td>
+<td>size of a world unit in metres, for the slope</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="erosion"><code>erosion</code></h2>
+
+<p>Evolves the ground the world already has: uplift, rivers that cut valleys (stream power) and hillslopes that round off (diffusion). Publishes elevation, slope, drainage_area (km²) and the rivers, at the start and as the ground changes.</p>
+
+<ul>
+<li><strong>Reads:</strong> fields <code>elevation</code></li>
+<li><strong>Writes:</strong> <code>elevation</code>, <code>slope</code>, <code>drainage_area</code>, <code>river</code></li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>years_per_unit</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>years of erosion each unit of the stage&rsquo;s clock stands for (10000: every step is ten thousand years)</td>
+</tr>
+
+<tr>
+<td><code>uplift</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>metres a year the land rises</td>
+</tr>
+
+<tr>
+<td><code>erodibility</code></td>
+<td>number</td>
+<td><code>1e-05</code></td>
+<td>K of the stream power law, a year⁻¹ · m^(1−2m)</td>
+</tr>
+
+<tr>
+<td><code>area_exponent</code></td>
+<td>number</td>
+<td><code>0.5</code></td>
+<td>m of the stream power law (the slope&rsquo;s exponent is 1)</td>
+</tr>
+
+<tr>
+<td><code>diffusivity</code></td>
+<td>number</td>
+<td><code>0.005</code></td>
+<td>m² a year: how fast hillslopes round off</td>
+</tr>
+
+<tr>
+<td><code>sea_level</code></td>
+<td>number</td>
+<td><code>0</code></td>
+<td>metres: lower ground is sea and does not change</td>
+</tr>
+
+<tr>
+<td><code>river_area</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>km² drained from which there is a river</td>
+</tr>
+
+<tr>
+<td><code>river_width</code></td>
+<td>list</td>
+<td></td>
+<td>[metres, exponent]: width = metres · area(km²)^exponent; default [3, 0.5]</td>
+</tr>
+
+<tr>
+<td><code>random_receivers</code></td>
+<td>boolean</td>
+<td><code>false</code></td>
+<td>water goes to a lower neighbour drawn by its slope, not always the steepest: no straight valleys along the grid</td>
+</tr>
+
+<tr>
+<td><code>seed</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>seed of random_receivers: the same seed, the same valleys</td>
+</tr>
+
+<tr>
+<td><code>publish_every</code></td>
+<td>number</td>
+<td><code>1</code></td>
+<td>steps between publications of the changed ground</td>
+</tr>
+
+<tr>
+<td><code>metres_per_unit</code></td>
+<td>number</td>
+<td><code>1000</code></td>
+<td>size of a world unit in metres</td>
+</tr>
+</tbody>
+</table>

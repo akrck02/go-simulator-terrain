@@ -1,0 +1,198 @@
+<h1 id="erosion-and-rivers">Erosion and rivers</h1>
+
+<p>A relief read from a file stays as it is. The <code>erosion</code> rule lets it change: the land rises, the
+rivers cut their valleys deeper and the hillslopes round off, step after step, and the rivers come
+out of where the water gathers. The other plugins read the changed ground, its drainage and its
+rivers from the world.</p>
+
+<p><img src="./images/erosion.png" alt="A made-up island at the start and after a million years: deeper valleys, sharper ridges, and the rivers drawn where the water gathers" /></p>
+
+<p><em>The example island (<code>examples/eroding-island.yaml</code>): each step stands for 10 000 years. The valleys
+deepen and branch, and the rivers grow longer as more ground drains into them.</em></p>
+
+<p>Put it after the <code>relief</code> rule: it starts from the <code>elevation</code> the world already has.</p>
+<pre><code class="language-yaml">- <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+  <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">island.npy, minimum_x</span><span class="p">:</span> <span class="nt">-4, minimum_z</span><span class="p">:</span> <span class="nt">-4, cell_size</span><span class="p">:</span> <span class="m">0.05</span>}
+- <span class="nt">rule</span><span class="p">:</span> <span class="l">erosion</span>
+  <span class="nt">with</span><span class="p">:</span> {<span class="nt">years_per_unit</span><span class="p">:</span> <span class="nt">10000, uplift</span><span class="p">:</span> <span class="nt">0.0002, erodibility</span><span class="p">:</span> <span class="nt">0.000002, random_receivers</span><span class="p">:</span> <span class="kc">true</span>}
+</code></pre>
+
+<h2 id="the-model">The model</h2>
+
+<p>The rule is a landscape evolution model of the usual kind (Tucker and Hancock 2010). Every cell of
+the ground follows</p>
+<pre><code>dz/dt = U − K·A^m·S + κ·∇²z
+</code></pre>
+
+<ul>
+<li><strong>U, uplift</strong> (<code>uplift</code>, metres a year): the land rises, all of it at the same pace.</li>
+<li><strong>K·A^m·S, the stream power law</strong> (Howard 1994; Whipple and Tucker 1999): water cuts into the
+ground faster where more of it runs (A, the area that drains through the cell, stands for the
+discharge) and where it runs steeper (S, the slope towards the cell it goes to). K
+(<code>erodibility</code>) says how easily the rock gives way and m (<code>area_exponent</code>) how much the amount
+of water counts; the slope&rsquo;s exponent is 1.</li>
+<li><strong>κ·∇²z, soil creep</strong> (<code>diffusivity</code>, m² a year): hillslopes round off, because soil slowly moves
+from the convex tops to the concave feet (Fernandes and Dietrich 1997; Roering et al. 1999).</li>
+</ul>
+
+<p>The sea (ground at or below <code>sea_level</code>) and the cells on the edge of the grid are the <strong>base
+level</strong>: they do not change, and every drop of water ends in one of them. A relief cut out of a
+larger map lets its rivers leave through the edges.</p>
+
+<h3 id="how-it-is-solved">How it is solved</h3>
+
+<p>Every piece of time:</p>
+
+<ol>
+<li><strong>Drainage.</strong> The hollows are filled for the water (priority flood, Barnes et al. 2014), so water
+from every cell reaches the base level, and each cell gives its water to its steepest lower
+neighbour of eight. The area drained adds up from the highest cells down.</li>
+<li><strong>Uplift</strong>, on everything but the base level.</li>
+<li><strong>Valleys.</strong> The stream power law is solved implicitly, from the lowest cells up (Braun and
+Willett 2013): it is stable for any length of time and a cell never ends lower than the cell
+its water goes to. A cell lower than that one lies in a hollow and is left alone, so the
+hollows of the relief stay where they are.</li>
+<li><strong>Creep</strong>, with the four neighbours of each cell. Creep is only stable for short pieces of time
+(κ·Δt/Δx² ≤ 0.2), so a long step is cut into as many pieces as it needs.</li>
+</ol>
+
+<p>The heights are kept in float64 between steps: a change of a fraction of a millimetre a year would
+be lost if it were rounded to the float32 of the fields every year.</p>
+
+<p><strong>Drawn receivers.</strong> Always sending the water to the steepest of eight neighbours cuts straight
+valleys lined up with the grid, which a shaded relief shows as stripes. With <code>random_receivers</code>,
+each cell sends its water to one of its lower neighbours drawn with a chance that grows with the
+square of its slope, so the valleys wander like real ones. The draws come from <code>seed</code>: the same
+seed, the same valleys.</p>
+
+<h2 id="what-a-year-means">What a year means</h2>
+
+<p>The numbers of the model are in metres and years, and <code>years_per_unit</code> says how many years of
+erosion each unit of the stage&rsquo;s clock stands for. With the default of 1, a year of the clock is a
+year of erosion, and the ground hardly moves: rivers lower their beds by tenths of a millimetre a
+year, so a town that grows for a century sees its ground change by centimetres at the most. To see
+valleys form, make every step stand for thousands of years (<code>years_per_unit: 10000</code>), in a stage of
+its own before the stages that use the ground.</p>
+
+<h2 id="what-it-publishes">What it publishes</h2>
+
+<p>At the start and then every <code>publish_every</code> steps:</p>
+
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Kind</th>
+<th>Unit</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>elevation</code>, <code>slope</code></td>
+<td>fields</td>
+<td>metres; rise over run</td>
+</tr>
+
+<tr>
+<td><code>drainage_area</code></td>
+<td>field</td>
+<td>km² of ground that drains through each cell (0 on the base level)</td>
+</tr>
+
+<tr>
+<td>rivers</td>
+<td>entities of kind <code>river</code>: a line with a width</td>
+<td>world units; properties <code>width</code> (world units) and <code>drainage_area</code> (km² where the river ends)</td>
+</tr>
+</tbody>
+</table>
+<p>A river starts where the drained area reaches <code>river_area</code> (channel heads drain from hundredths of
+a km² to about one; Montgomery and Dietrich 1988) and runs down to the sea, the edge or a bigger
+river. The rivers that drain most are traced first, so a main river keeps its whole length and its
+tributaries end where they meet it. Its width grows with the area it drains, as hydraulic geometry
+finds for the discharge (Leopold and Maddock 1953): <code>width = river_width[0] · area^river_width[1]</code>,
+3 m · area(km²)^0.5 by default. The line goes through the cell centres, with its corners rounded
+(Chaikin 1974). Each river is named after the cell where it starts, so a river that only changes
+a little is modified, not replaced.</p>
+
+<h2 id="numbers">Numbers</h2>
+
+<p>The defaults are middle values from the literature; set them for your own place.</p>
+
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Range in the literature</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>erodibility</code></td>
+<td>1e-5 a year⁻¹ (m = 0.5)</td>
+<td>about 1e-7 to 1e-4, from hard to soft rock (Stock and Montgomery 1999; Harel et al. 2016)</td>
+</tr>
+
+<tr>
+<td><code>area_exponent</code></td>
+<td>0.5</td>
+<td>concavity m/n of 0.3 to 0.7, 0.5 most often (Whipple and Tucker 1999)</td>
+</tr>
+
+<tr>
+<td><code>diffusivity</code></td>
+<td>0.005 m² a year</td>
+<td>0.001 to 0.01 m² a year on soil-mantled hillslopes (Fernandes and Dietrich 1997; Roering et al. 1999)</td>
+</tr>
+
+<tr>
+<td><code>uplift</code></td>
+<td>0</td>
+<td>tenths of a millimetre to a few millimetres a year in active mountains</td>
+</tr>
+
+<tr>
+<td><code>river_area</code></td>
+<td>1 km²</td>
+<td>channel heads drain from hundredths of a km² to about one (Montgomery and Dietrich 1988)</td>
+</tr>
+
+<tr>
+<td><code>river_width</code></td>
+<td>[3, 0.5]</td>
+<td>the exponent 0.5 is hydraulic geometry&rsquo;s (Leopold and Maddock 1953); the coefficient is a round value</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="references">References</h2>
+
+<ul>
+<li>Barnes, R., Lehman, C. and Mulla, D. (2014). Priority-flood: an optimal depression-filling and
+watershed-labeling algorithm for digital elevation models. <em>Computers &amp; Geosciences</em> 62.</li>
+<li>Braun, J. and Willett, S. D. (2013). A very efficient O(n), implicit and parallel method to solve
+the stream power equation governing fluvial incision and landscape evolution. <em>Geomorphology</em> 180–181.</li>
+<li>Chaikin, G. M. (1974). An algorithm for high-speed curve generation. <em>Computer Graphics and Image
+Processing</em> 3.</li>
+<li>Fernandes, N. F. and Dietrich, W. E. (1997). Hillslope evolution by diffusive processes: the
+timescale for equilibrium adjustments. <em>Water Resources Research</em> 33.</li>
+<li>Harel, M.-A., Mudd, S. M. and Attal, M. (2016). Global analysis of the stream power law
+parameters based on worldwide ¹⁰Be denudation rates. <em>Geomorphology</em> 268.</li>
+<li>Howard, A. D. (1994). A detachment-limited model of drainage basin evolution. <em>Water Resources
+Research</em> 30.</li>
+<li>Leopold, L. B. and Maddock, T. (1953). The hydraulic geometry of stream channels and some
+physiographic implications. USGS Professional Paper 252.</li>
+<li>Montgomery, D. R. and Dietrich, W. E. (1988). Where do channels begin? <em>Nature</em> 336.</li>
+<li>Roering, J. J., Kirchner, J. W. and Dietrich, W. E. (1999). Evidence for nonlinear, diffusive
+sediment transport on hillslopes and implications for landscape morphology. <em>Water Resources
+Research</em> 35.</li>
+<li>Stock, J. D. and Montgomery, D. R. (1999). Geologic constraints on bedrock river incision using
+the stream power law. <em>Journal of Geophysical Research</em> 104.</li>
+<li>Tucker, G. E. and Hancock, G. R. (2010). Modelling landscape evolution. <em>Earth Surface Processes
+and Landforms</em> 35.</li>
+<li>Whipple, K. X. and Tucker, G. E. (1999). Dynamics of the stream-power river incision model.
+<em>Journal of Geophysical Research</em> 104.</li>
+</ul>

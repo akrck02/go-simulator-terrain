@@ -1,0 +1,566 @@
+<h1 id="the-terrain-quest">The terrain quest</h1>
+
+<p>Shape an island with water and time, one level at a time. Each level teaches one piece of the
+terrain plugin and ends with a new island to look at in 3D.</p>
+
+<p><img src="./images/quest/quest-map.svg" alt="The quest map: a road from START through 5 levels — Surveyor, Rainmaker, Mountain builder, Meanderer and Coast keeper — to a final challenge, Island shaper" /></p>
+
+<p>We start from a smooth <strong>volcano</strong> of your own, 800 metres high, and let <strong>rivers</strong> find their way
+down it, <strong>uplift</strong> push it up, <strong>valleys</strong> wander, and the <strong>sea</strong> hold its coast, until two
+million years have made a mountain island.</p>
+
+<hr>
+
+<p>Every level has the same shape: <strong>the idea</strong> (explained with something from everyday life), <strong>the
+rules</strong>, a <strong>checkpoint</strong> to know it works, and an optional <strong>bonus</strong>.</p>
+
+<hr>
+
+<h2 id="before-you-start">Before you start</h2>
+
+<p>You need Go 1.25 and GEOS (<code>sudo apt install libgeos-dev</code>, <code>brew install geos</code>), for looking at the
+results with go-scene-builder. Clone the projects side by side, and make a folder for the quest:</p>
+<pre><code class="language-sh">git clone https://github.com/akrck02/go-renderer
+git clone https://github.com/akrck02/go-scene-builder
+git clone https://github.com/akrck02/go-simulator
+git clone https://github.com/akrck02/go-simulator-terrain
+mkdir island <span class="o">&amp;&amp;</span> <span class="nb">cd</span> island
+go mod init example.com/island
+</code></pre>
+
+<h3 id="looking-at-a-result">Looking at a result</h3>
+
+<p>The plugin publishes <strong>fields</strong>: a grid of numbers over the world, such as the height of every
+cell. A run without a window writes each field in go-scene-builder&rsquo;s relief format, so the builder
+can turn it into a 3D scene for go-renderer&rsquo;s viewer. Three files do it, made once:</p>
+
+<p><code>view.yaml</code>, how the island looks (green low down, rock higher, snow at the top, a sea at 0 m, the
+rivers as water):</p>
+<pre><code class="language-yaml"><span class="nt">units</span><span class="p">:</span> <span class="l">m</span>
+<span class="nt">chunk</span><span class="p">:</span> <span class="m">2</span>
+<span class="nt">environment</span><span class="p">:</span> {<span class="nt">sun</span><span class="p">:</span> <span class="nt">[220, 35], water_level</span><span class="p">:</span> <span class="m">0</span>}
+<span class="nt">terrain</span><span class="p">:</span> {<span class="nt">color</span><span class="p">:</span> <span class="s2">&#34;#7f9a4e&#34;</span><span class="nt">, bands</span><span class="p">:</span> <span class="p">[</span>{<span class="nt">above</span><span class="p">:</span> <span class="nt">250, color</span><span class="p">:</span> <span class="s2">&#34;#8a8674&#34;</span><span class="nt">, blend</span><span class="p">:</span> <span class="m">80</span>}<span class="p">,</span> {<span class="nt">above</span><span class="p">:</span> <span class="nt">600, color</span><span class="p">:</span> <span class="s2">&#34;#e9e7e1&#34;</span><span class="nt">, blend</span><span class="p">:</span> <span class="m">60</span>}<span class="p">]</span>}
+<span class="nt">rules</span><span class="p">:</span>
+  - <span class="nt">when</span><span class="p">:</span> {<span class="nt">kind</span><span class="p">:</span> <span class="l">river}</span>
+    <span class="nt">shape</span><span class="p">:</span> {<span class="nt">role</span><span class="p">:</span> <span class="nt">water, width</span><span class="p">:</span> <span class="s2">&#34;width * 1000&#34;</span>}
+</code></pre>
+
+<p><code>look/main.go</code>, which tells the builder how a snapshot&rsquo;s map is written (kilometres, with z growing
+to the south):</p>
+<pre><code class="language-go"><span class="c1">// Command look turns a snapshot&#39;s entities into a map go-scene-builder reads: the snapshot writes</span>
+<span class="c1">// [x, z] in kilometres, with z to the south, and the builder needs to be told so.</span>
+<span class="c1">//</span>
+<span class="c1">//	go run ./look &#34;results/island 100.geojson&#34; map.geojson</span>
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;encoding/json&#34;</span>
+	<span class="s">&#34;log&#34;</span>
+	<span class="s">&#34;os&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">content</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="kd">var</span> <span class="nx">collection</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">any</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">content</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">collection</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">properties</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">collection</span><span class="p">[</span><span class="s">&#34;properties&#34;</span><span class="p">].(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">any</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">properties</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">properties</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">any</span><span class="p">{}</span>
+	<span class="p">}</span>
+	<span class="nx">properties</span><span class="p">[</span><span class="s">&#34;units&#34;</span><span class="p">],</span> <span class="nx">properties</span><span class="p">[</span><span class="s">&#34;axes&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="s">&#34;km&#34;</span><span class="p">,</span> <span class="s">&#34;east-south&#34;</span>
+	<span class="nx">collection</span><span class="p">[</span><span class="s">&#34;properties&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">properties</span>
+	<span class="nx">out</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">collection</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nx">out</span><span class="p">,</span> <span class="mi">0</span><span class="nx">o644</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p>And the three commands, after every run (here for the snapshot at time 100 of the stage <code>island</code>):</p>
+<pre><code class="language-sh">go run ./look <span class="s2">&#34;results/island 100.geojson&#34;</span> map.geojson
+go run ../go-scene-builder/cmd/build-scene -map map.geojson -relief <span class="s2">&#34;results/island 100 elevation.json&#34;</span> -style view.yaml -out island.glb
+go run ../go-renderer/cmd/visor island.glb
+</code></pre>
+
+<p>The pictures were taken with <code>-zoom 0.75</code> in the viewer.</p>
+
+<hr>
+
+<h2 id="level-1-the-surveyor">Level 1 · The Surveyor</h2>
+
+<table>
+<thead>
+<tr>
+<th>Mission</th>
+<th>Pieces</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>A volcano of your own, in the world</td>
+<td>the relief format, the <code>relief</code> rule, fields, snapshots</td>
+<td>10 min</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="the-idea">The idea</h4>
+
+<p>A <strong>relief</strong> is a <strong>chessboard of heights</strong>: every square says how high the ground is. It lives
+in two files, a small label (<code>relieve.json</code>: how many squares, how big, where) and the heights
+themselves (<code>relieve.f32</code>: one number per square, row by row from the north).</p>
+
+<p>The <code>relief</code> rule reads it and puts it in the world as two <strong>fields</strong>: <code>elevation</code> (metres) and
+<code>slope</code> (how steep, rise over run). Other plugins read those fields; the terrain plugin&rsquo;s other
+rule will change them.</p>
+
+<h4 id="build-it">Build it</h4>
+
+<p><code>island/main.go</code> writes the volcano, 8 × 8 km in cells of 50 m:</p>
+<pre><code class="language-go"><span class="c1">// Command island writes a made-up island: relieve.json, the grid&#39;s size and place in kilometres,</span>
+<span class="c1">// and relieve.f32, a height in metres for every cell, row by row from the north.</span>
+<span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;encoding/binary&#34;</span>
+	<span class="s">&#34;encoding/json&#34;</span>
+	<span class="s">&#34;log&#34;</span>
+	<span class="s">&#34;math&#34;</span>
+	<span class="s">&#34;os&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="kd">const</span> <span class="p">(</span>
+		<span class="nx">columns</span><span class="p">,</span> <span class="nx">rows</span> <span class="p">=</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">160</span> <span class="c1">// cells</span>
+		<span class="nx">cell</span>          <span class="p">=</span> <span class="mf">0.05</span>     <span class="c1">// kilometres a side: 50 m</span>
+		<span class="nx">west</span><span class="p">,</span> <span class="nx">north</span>   <span class="p">=</span> <span class="o">-</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span>
+	<span class="p">)</span>
+	<span class="nx">heights</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">float32</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">columns</span><span class="o">*</span><span class="nx">rows</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">row</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">rows</span> <span class="p">{</span>
+		<span class="k">for</span> <span class="nx">column</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">columns</span> <span class="p">{</span>
+			<span class="nx">east</span> <span class="o">:=</span> <span class="nx">west</span> <span class="o">+</span> <span class="p">(</span><span class="nb">float64</span><span class="p">(</span><span class="nx">column</span><span class="p">)</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="nx">cell</span>
+			<span class="nx">northing</span> <span class="o">:=</span> <span class="nx">north</span> <span class="o">-</span> <span class="p">(</span><span class="nb">float64</span><span class="p">(</span><span class="nx">row</span><span class="p">)</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="nx">cell</span>
+			<span class="nx">heights</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">heights</span><span class="p">,</span> <span class="nb">float32</span><span class="p">(</span><span class="nf">height</span><span class="p">(</span><span class="nx">east</span><span class="p">,</span> <span class="nx">northing</span><span class="p">)))</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="nx">header</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">any</span><span class="p">{</span><span class="s">&#34;columns&#34;</span><span class="p">:</span> <span class="nx">columns</span><span class="p">,</span> <span class="s">&#34;rows&#34;</span><span class="p">:</span> <span class="nx">rows</span><span class="p">,</span> <span class="s">&#34;cell&#34;</span><span class="p">:</span> <span class="nx">cell</span><span class="p">,</span> <span class="s">&#34;west&#34;</span><span class="p">:</span> <span class="nx">west</span><span class="p">,</span> <span class="s">&#34;north&#34;</span><span class="p">:</span> <span class="nx">north</span><span class="p">,</span> <span class="s">&#34;units&#34;</span><span class="p">:</span> <span class="s">&#34;km&#34;</span><span class="p">})</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">WriteFile</span><span class="p">(</span><span class="s">&#34;relieve.json&#34;</span><span class="p">,</span> <span class="nx">header</span><span class="p">,</span> <span class="mi">0</span><span class="nx">o644</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">file</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="s">&#34;relieve.f32&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">defer</span> <span class="nx">file</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">binary</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">file</span><span class="p">,</span> <span class="nx">binary</span><span class="p">.</span><span class="nx">LittleEndian</span><span class="p">,</span> <span class="nx">heights</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">log</span><span class="p">.</span><span class="nf">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// height is a volcano-shaped island 800 m high, a little lopsided, under the sea at its edges.</span>
+<span class="kd">func</span> <span class="nf">height</span><span class="p">(</span><span class="nx">east</span><span class="p">,</span> <span class="nx">north</span> <span class="kt">float64</span><span class="p">)</span> <span class="kt">float64</span> <span class="p">{</span>
+	<span class="nx">distance</span> <span class="o">:=</span> <span class="nx">math</span><span class="p">.</span><span class="nf">Hypot</span><span class="p">(</span><span class="nx">east</span><span class="o">*</span><span class="mf">1.2</span><span class="p">,</span> <span class="nx">north</span><span class="p">)</span> <span class="c1">// wider east to west</span>
+	<span class="nx">shoulder</span> <span class="o">:=</span> <span class="nx">math</span><span class="p">.</span><span class="nf">Max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="nx">distance</span><span class="o">/</span><span class="mf">3.2</span><span class="p">)</span>
+	<span class="c1">// ridges and hollows of a few sizes, so the rivers have somewhere to start</span>
+	<span class="nx">bumps</span> <span class="o">:=</span> <span class="mi">60</span><span class="o">*</span><span class="nx">math</span><span class="p">.</span><span class="nf">Sin</span><span class="p">(</span><span class="nx">east</span><span class="o">*</span><span class="mf">2.3</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nx">math</span><span class="p">.</span><span class="nf">Cos</span><span class="p">(</span><span class="nx">north</span><span class="o">*</span><span class="mf">1.7</span><span class="p">)</span> <span class="o">+</span> <span class="mi">30</span><span class="o">*</span><span class="nx">math</span><span class="p">.</span><span class="nf">Sin</span><span class="p">(</span><span class="nx">east</span><span class="o">*</span><span class="mf">5.1</span><span class="p">)</span><span class="o">*</span><span class="nx">math</span><span class="p">.</span><span class="nf">Sin</span><span class="p">(</span><span class="nx">north</span><span class="o">*</span><span class="mf">4.3</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">15</span><span class="o">*</span><span class="nx">math</span><span class="p">.</span><span class="nf">Cos</span><span class="p">(</span><span class="nx">east</span><span class="o">*</span><span class="mf">9.7</span><span class="o">+</span><span class="nx">north</span><span class="o">*</span><span class="mf">8.9</span><span class="p">)</span>
+	<span class="k">return</span> <span class="mi">820</span><span class="o">*</span><span class="nx">math</span><span class="p">.</span><span class="nf">Pow</span><span class="p">(</span><span class="nx">shoulder</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">)</span> <span class="o">+</span> <span class="nx">bumps</span><span class="o">*</span><span class="nx">shoulder</span> <span class="o">-</span> <span class="mi">30</span>
+<span class="p">}</span>
+</code></pre>
+<pre><code class="language-sh">go run ./island
+</code></pre>
+
+<p><code>rules.yaml</code>, one stage of one step that snapshots the world at its end:</p>
+<pre><code class="language-yaml"><span class="nt">plugins</span><span class="p">:</span>
+  - <span class="nt">name</span><span class="p">:</span> <span class="l">terrain</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p">[</span><span class="l">go, run, .]</span>
+    <span class="nt">directory</span><span class="p">:</span> <span class="l">../go-simulator-terrain</span>
+
+<span class="nt">stages</span><span class="p">:</span>
+  - <span class="nt">name</span><span class="p">:</span> <span class="l">ground</span>
+    <span class="nt">clock</span><span class="p">:</span> {<span class="nt">from</span><span class="p">:</span> <span class="nt">0, to</span><span class="p">:</span> <span class="nt">1, step</span><span class="p">:</span> <span class="m">1</span>}
+    <span class="nt">snapshots</span><span class="p">:</span> <span class="p">[</span><span class="m">1</span><span class="p">]</span>
+    <span class="nt">rules</span><span class="p">:</span>
+      - <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+        <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relieve.json, origin</span><span class="p">:</span> <span class="p">[</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">]</span>}
+</code></pre>
+<pre><code class="language-sh">go run ../go-simulator/cmd/simulate -rules rules.yaml -output results/
+</code></pre>
+
+<h4 id="checkpoint">Checkpoint</h4>
+
+<p><code>results/</code> holds <code>ground 1 elevation.json</code> and <code>.f32</code>, <code>ground 1 slope.json</code> and <code>.f32</code>. Look at
+the elevation (the snapshot is <code>ground 1</code>): a smooth cone in the sea, green at the shore, rock on
+its shoulders, snow on top.</p>
+
+<p><img src="./images/quest/level-1.jpg" alt="Level 1: a smooth volcano in the sea" /></p>
+
+<h4 id="bonus-optional-two-peaks">Bonus (optional): two peaks</h4>
+
+<details>
+<summary>🔓 Show the solution</summary>
+
+Add a second cone to `height`: `+ 500*math.Pow(math.Max(0, 1-math.Hypot(east-2, north+1.5)/1.5), 1.6)`.
+
+</details>
+
+<p><img src="./images/quest/achievement-surveyor.svg" alt="Achievement unlocked: Surveyor" /></p>
+
+<p>Learn more: <a href="./model">Reliefs and fields</a> · <a href="./rules">Rules</a></p>
+
+<hr>
+
+<h2 id="level-2-the-rainmaker">Level 2 · The Rainmaker</h2>
+
+<table>
+<thead>
+<tr>
+<th>Mission</th>
+<th>Pieces</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Rivers that find their way down and cut valleys</td>
+<td>the <code>erosion</code> rule, years per step, drainage</td>
+<td>8 min</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="the-idea-1">The idea</h4>
+
+<p>Pour a <strong>glass of water</strong> on a sandcastle: it runs down the steepest way, gathers in gullies, and
+the more water a gully carries, the faster it digs. That is the <strong>stream power law</strong>: erosion grows
+with the area a river drains and the slope it runs down. Over thousands of years, gullies become
+valleys.</p>
+
+<p>Each step of the clock stands for as many years as <code>years_per_unit</code> says: 100 steps of 10,000
+years are a million.</p>
+
+<h4 id="build-it-1">Build it</h4>
+
+<p>A stage of 100 steps, with the relief first and erosion after it:</p>
+<pre><code class="language-yaml"><span class="nt">plugins</span><span class="p">:</span>
+  - <span class="nt">name</span><span class="p">:</span> <span class="l">terrain</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p">[</span><span class="l">go, run, .]</span>
+    <span class="nt">directory</span><span class="p">:</span> <span class="l">../go-simulator-terrain</span>
+
+<span class="nt">stages</span><span class="p">:</span>
+  - <span class="nt">name</span><span class="p">:</span> <span class="l">island</span>
+    <span class="nt">clock</span><span class="p">:</span> {<span class="nt">unit</span><span class="p">:</span> <span class="nt">year, from</span><span class="p">:</span> <span class="nt">0, to</span><span class="p">:</span> <span class="nt">100, step</span><span class="p">:</span> <span class="m">1</span>}
+    <span class="nt">snapshots</span><span class="p">:</span> <span class="p">[</span><span class="m">0</span><span class="p">,</span> <span class="m">100</span><span class="p">]</span>
+    <span class="nt">snapshot_fields</span><span class="p">:</span> <span class="p">[</span><span class="l">elevation, drainage_area]</span>
+    <span class="nt">rules</span><span class="p">:</span>
+      - <span class="nt">rule</span><span class="p">:</span> <span class="l">relief</span>
+        <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relieve.json, origin</span><span class="p">:</span> <span class="p">[</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">]</span>}
+      - <span class="nt">rule</span><span class="p">:</span> <span class="l">erosion</span>
+        <span class="nt">with</span><span class="p">:</span> {<span class="nt">years_per_unit</span><span class="p">:</span> <span class="nt">10000, erodibility</span><span class="p">:</span> <span class="nt">0.000002, river_area</span><span class="p">:</span> <span class="m">0.3</span>}
+</code></pre>
+
+<p><code>river_area</code> says from how many km² drained a stream counts as a river: those become entities of
+kind <code>river</code>, which <code>look</code> puts on the map.</p>
+
+<h4 id="checkpoint-1">Checkpoint</h4>
+
+<p>The run takes a second or two. At 100, the volcano is lower and scored by gullies, with rivers down
+to the sea.</p>
+
+<p><img src="./images/quest/level-2.jpg" alt="Level 2: the volcano worn lower, rivers running to the sea" /></p>
+
+<h4 id="bonus-optional-softer-rock">Bonus (optional): softer rock</h4>
+
+<details>
+<summary>🔓 Show the solution</summary>
+
+`erodibility: 0.00001`: rock five times as soft wears five times as fast.
+
+</details>
+
+<p><img src="./images/quest/achievement-rainmaker.svg" alt="Achievement unlocked: Rainmaker" /></p>
+
+<p>Learn more: <a href="./how-it-works">How it works</a> · <a href="./erosion">Erosion</a></p>
+
+<hr>
+
+<h2 id="level-3-the-mountain-builder">Level 3 · The Mountain builder</h2>
+
+<table>
+<thead>
+<tr>
+<th>Mission</th>
+<th>Pieces</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Uplift that pushes the island up as the rivers wear it down</td>
+<td><code>uplift</code></td>
+<td>5 min</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="the-idea-2">The idea</h4>
+
+<p>An <strong>escalator going up</strong> while you walk down: if you walk as fast as it climbs, you stay where you
+are. Mountains are like that: the earth pushes them up, rivers wear them down, and they settle
+where the two balance.</p>
+
+<h4 id="build-it-2">Build it</h4>
+
+<p>The erosion rule&rsquo;s parameters only:</p>
+<pre><code class="language-yaml">        <span class="nt">with</span><span class="p">:</span> {<span class="nt">years_per_unit</span><span class="p">:</span> <span class="nt">10000, uplift</span><span class="p">:</span> <span class="nt">0.0002, erodibility</span><span class="p">:</span> <span class="nt">0.000002, river_area</span><span class="p">:</span> <span class="m">0.3</span>}
+</code></pre>
+
+<p>0.0002 m a year is 2 metres every 10,000 years.</p>
+
+<h4 id="checkpoint-2">Checkpoint</h4>
+
+<p>The island grows <strong>taller</strong>, the snow reaches lower, and the valleys run straight from the top, like
+the spokes of a wheel: water always takes the steepest of the eight neighbours of a cell, so it
+follows the grid.</p>
+
+<p><img src="./images/quest/level-3.jpg" alt="Level 3: a taller island with straight valleys like spokes" /></p>
+
+<h4 id="bonus-optional-find-the-balance">Bonus (optional): find the balance</h4>
+
+<details>
+<summary>🔓 Show the solution</summary>
+
+Run 300 steps instead of 100 and snapshot at 100, 200 and 300: the peak stops rising once erosion
+takes away what uplift brings.
+
+</details>
+
+<p><img src="./images/quest/achievement-mountain-builder.svg" alt="Achievement unlocked: Mountain builder" /></p>
+
+<hr>
+
+<h2 id="level-4-the-meanderer">Level 4 · The Meanderer</h2>
+
+<table>
+<thead>
+<tr>
+<th>Mission</th>
+<th>Pieces</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Valleys that wander, the same every run</td>
+<td><code>random_receivers</code>, <code>seed</code></td>
+<td>5 min</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="the-idea-3">The idea</h4>
+
+<p>Real water does not always take the single steepest way: a <strong>pinball</strong> bounces down a slope, more
+often down the steeper side, never quite the same line. With <code>random_receivers</code>, water picks a
+lower neighbour <strong>by chance, weighted by its slope</strong>. The <code>seed</code> makes the chance repeatable: the
+same seed, the same valleys.</p>
+
+<h4 id="build-it-3">Build it</h4>
+<pre><code class="language-yaml">        <span class="nt">with</span><span class="p">:</span> {<span class="nt">years_per_unit</span><span class="p">:</span> <span class="nt">10000, uplift</span><span class="p">:</span> <span class="nt">0.0002, erodibility</span><span class="p">:</span> <span class="nt">0.000002, river_area</span><span class="p">:</span> <span class="nt">0.3, random_receivers</span><span class="p">:</span> <span class="nt">true, seed</span><span class="p">:</span> <span class="m">7</span>}
+</code></pre>
+
+<h4 id="checkpoint-3">Checkpoint</h4>
+
+<p>The spokes are gone: valleys bend and join as on a real mountain. Run it twice: the two islands are
+identical. Change the seed: other valleys.</p>
+
+<p><img src="./images/quest/level-4.jpg" alt="Level 4: valleys that bend and join" /></p>
+
+<h4 id="bonus-optional-rounder-hills">Bonus (optional): rounder hills</h4>
+
+<details>
+<summary>🔓 Show the solution</summary>
+
+`diffusivity: 0.02`: hillslopes creep downhill and round off, as soil does over centuries; the
+ridges between valleys soften.
+
+</details>
+
+<p><img src="./images/quest/achievement-meanderer.svg" alt="Achievement unlocked: Meanderer" /></p>
+
+<hr>
+
+<h2 id="level-5-the-coast-keeper">Level 5 · The Coast keeper</h2>
+
+<table>
+<thead>
+<tr>
+<th>Mission</th>
+<th>Pieces</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>A sea level the rivers stop at</td>
+<td><code>sea_level</code></td>
+<td>4 min</td>
+</tr>
+</tbody>
+</table>
+
+<h4 id="the-idea-4">The idea</h4>
+
+<p>A river stops cutting where it meets the sea: the sea is its <strong>floor</strong>. Ground under <code>sea_level</code> is
+sea, and does not change, so the coast holds while the land above it is carved.</p>
+
+<h4 id="build-it-4">Build it</h4>
+<pre><code class="language-yaml">        <span class="nt">with</span><span class="p">:</span> {<span class="nt">years_per_unit</span><span class="p">:</span> <span class="nt">10000, uplift</span><span class="p">:</span> <span class="nt">0.0002, erodibility</span><span class="p">:</span> <span class="nt">0.000002, river_area</span><span class="p">:</span> <span class="nt">0.3, random_receivers</span><span class="p">:</span> <span class="nt">true, seed</span><span class="p">:</span> <span class="nt">7, sea_level</span><span class="p">:</span> <span class="m">60</span>}
+</code></pre>
+
+<h4 id="checkpoint-4">Checkpoint</h4>
+
+<p>Below 60 m, a ring of the old smooth slope stays as it was, a green shore round the island; above
+it, the valleys reach down to it.</p>
+
+<p><img src="./images/quest/level-5.jpg" alt="Level 5: a smooth green shore round the carved island" /></p>
+
+<p><img src="./images/quest/achievement-coast-keeper.svg" alt="Achievement unlocked: Coast keeper" /></p>
+
+<p>Learn more: <a href="./rules">Rules: erosion</a></p>
+
+<hr>
+
+<h2 id="final-challenge-island-shaper">Final challenge · Island shaper</h2>
+
+<p>Run <strong>two million years</strong> on the volcano, with uplift, wandering valleys, rounder hills and a sea
+at 20 m, and snapshot the start, the middle and the end. Then look at the start and the end side by
+side.</p>
+
+<blockquote>
+<p><strong>Hint:</strong> 200 steps of 10,000 years; three snapshots; all the parameters of levels 2 to 5, a lower
+<code>river_area</code> for more rivers.</p>
+</blockquote>
+
+<p>Try it on your own first, then compare with the solution.</p>
+
+<p><img src="./images/quest/final-start.jpg" alt="The start: the smooth volcano" /></p>
+
+<p><img src="./images/quest/final.jpg" alt="The end: two million years later, a mountain island with snow and valleys to every shore" /></p>
+
+<details>
+<summary>🔓 Show the solution</summary>
+
+<pre><code>    clock: {unit: year, from: 0, to: 200, step: 1}
+    snapshots: [0, 100, 200]
+    snapshot_fields: [elevation, drainage_area]
+    rules:
+      - rule: relief
+        with: {path: relieve.json, origin: [0, 0]}
+      - rule: erosion
+        with: {years_per_unit: 10000, uplift: 0.0002, erodibility: 0.000002, diffusivity: 0.01, river_area: 0.2, random_receivers: true, seed: 7, sea_level: 20}</code></pre>
+
+Then `look`, `build-scene` and the viewer on `island 0` and `island 200`.
+
+</details>
+
+<p><img src="./images/quest/achievement-final.svg" alt="Rare achievement unlocked: Island shaper" /></p>
+
+<hr>
+
+<h2 id="well-done">Well done</h2>
+
+<p><img src="./images/quest/achievements-all.svg" alt="All six achievements: Surveyor, Rainmaker, Mountain builder, Meanderer, Coast keeper and Island shaper" /></p>
+
+<p>You made a relief, put it in a world, and wore it into a mountain with the same laws real
+geomorphologists use.</p>
+
+<h3 id="ideas-to-keep-going">Ideas to keep going</h3>
+
+<table>
+<thead>
+<tr>
+<th>Idea</th>
+<th>Difficulty</th>
+<th>Hint</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Wider rivers</td>
+<td>⭐</td>
+<td><code>river_width: [6, 0.5]</code></td>
+</tr>
+
+<tr>
+<td>The made-up island that comes with the plugin</td>
+<td>⭐</td>
+<td><code>examples/eroding-island.yaml</code>, a <code>.npy</code> relief</td>
+</tr>
+
+<tr>
+<td>Give it a climate</td>
+<td>⭐⭐</td>
+<td><a href="https://github.com/akrck02/go-simulator-climate" target="_blank">The climate plugin</a> reads <code>elevation</code> from the world: put its rule after these</td>
+</tr>
+
+<tr>
+<td>Forests on it</td>
+<td>⭐⭐⭐</td>
+<td><a href="https://github.com/akrck02/go-simulator-flora" target="_blank">The flora plugin</a>, after the climate</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<table>
+<thead>
+<tr>
+<th>You see</th>
+<th>Why, and what to do</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>relief: unknown units</code></td>
+<td><code>units</code> in <code>relieve.json</code> must be <code>km</code> or <code>m</code></td>
+</tr>
+
+<tr>
+<td>The island is mirrored north to south, the rivers off the valleys</td>
+<td>The map was not run through <code>look</code>: the snapshot writes z to the south</td>
+</tr>
+
+<tr>
+<td>No rivers at all</td>
+<td><code>river_area</code> is larger than any river&rsquo;s drainage: lower it, or run longer</td>
+</tr>
+
+<tr>
+<td>The island sinks into the sea</td>
+<td>Erosion with no uplift only lowers it: add <code>uplift</code>, or fewer steps</td>
+</tr>
+
+<tr>
+<td><code>pkg-config: geos not found</code></td>
+<td>GEOS is needed by go-scene-builder, to look at the result</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<p><a href="./readme">← All the documentation</a></p>

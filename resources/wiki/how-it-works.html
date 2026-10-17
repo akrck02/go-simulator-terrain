@@ -1,0 +1,60 @@
+<h1 id="how-it-works">🔍 How it works</h1>
+
+<h2 id="how-the-plugin-fits-go-simulator">How the plugin fits go-simulator</h2>
+
+<p align="center">
+  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends go-simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="images/how-it-works.svg" width="880">
+</p>
+
+<p>go-simulator is the host. It keeps the world and moves the clock. The terrain plugin is a separate
+program the host starts; they talk over standard input and output (go-simulator&rsquo;s
+<a href="https://github.com/akrck02/go-simulator/blob/main/docs/protocol.md" target="_blank">protocol</a>).</p>
+
+<ul>
+<li>At the start the plugin <strong>describes</strong> itself: one rule, <code>relief</code>, its parameters, that it reads
+nothing from other plugins and that it writes <code>elevation</code> and <code>slope</code>. That description is also
+where the <a href="./rules">rules reference</a> comes from.</li>
+<li>When the stage starts, the rule reads the relief, lays it on the world (see
+<a href="./model">formats</a>), measures the slope of every cell (see
+<a href="./model">how the slope is measured</a>) and sets both fields.</li>
+<li>Other plugins read the ground from the world, as the fields <code>elevation</code> and <code>slope</code>, instead of
+loading the file themselves. Put the terrain plugin first: plugins start in order, so the ones
+after it find the ground already there.</li>
+</ul>
+
+<p>A plugin never touches the renderer: it reads its copy of the world and answers with changes
+(go-simulator&rsquo;s <a href="https://github.com/akrck02/go-simulator/blob/main/docs/writing-plugins.md" target="_blank">writing plugins</a>).
+Fields are in physical units and shapes in world units, as go-simulator&rsquo;s
+<a href="https://github.com/akrck02/go-simulator/blob/main/docs/vocabulary.md" target="_blank">vocabulary</a> lists.</p>
+
+<h2 id="what-happens-at-every-step">What happens at every step</h2>
+
+<p align="center">
+  <img alt="A stage whose clock goes from 0 to 3, a step of 1. At the start the relief rule reads the file and sets elevation and slope; at the steps to 1, 2 and 3 it has nothing to do and the host prints ground 1, 2 and 3 with 0 changes. Snapshots after the steps to 1 and 3 are the same bytes" src="images/steps.svg" width="880">
+</p>
+
+<p>On its own the ground does not change with time. The <code>relief</code> rule publishes it once, when the
+stage starts, so every plugin has it before its first step; if a host did not call the start, the
+first step publishes it instead. Every later step answers with nothing. The
+<a href="./erosion"><code>erosion</code> rule</a>, put after it, is the one that changes the ground over the steps.</p>
+
+<p>The picture is a real run: a stage from 0 to 3 with the island of the other pages, where
+<code>simulate</code> printed <code>0 changes</code> for every step and the snapshots taken after steps 1 and 3 hold
+byte-identical fields.</p>
+
+<h2 id="how-the-pictures-were-made">How the pictures were made</h2>
+
+<p>The pictures of the island (the map at the top of the README, the two fields, and the profile along
+A–B) were drawn from the plugin&rsquo;s own answers. A small throwaway program, kept outside the
+repository, wrote a made-up island as a <code>relieve.json</code> and <code>relieve.f32</code>, 160 × 110 cells of 50 m,
+from a few smooth hills and some noise, and the same heights as a <code>.npy</code>. go-simulator&rsquo;s <code>simulate</code>
+ran the real plugin on both, and a second throwaway program drew the snapshot files it wrote:
+the elevation shaded and coloured by height with a line every 50 m, the slope on its own scale, and
+one row of both as a profile.</p>
+
+<p>The maps are PNG pairs, one for light and one for dark mode; the profile is an SVG with its own
+light and dark colours. They are 2D drawings, not screenshots of go-simulator&rsquo;s viewer: the viewer
+draws the scene&rsquo;s own ground, not these fields. The diagrams (how it fits, the slope of a row,
+placing a relief, the steps) were drawn by hand in the same style; the numbers in the slope diagram
+were checked against the plugin&rsquo;s own code. The older island further down
+<a href="./model">reliefs and fields</a> comes from the earlier docs.</p>
