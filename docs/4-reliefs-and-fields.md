@@ -75,7 +75,7 @@ The rule tells the two apart by the end of `path`: `.json` or `.npy`.
   <img alt="Left: a relieve.json relief in kilometres east and north, with west = 0 and north = 5.5 on its edges, row 1 at the north, and the origin [4, 2.75] marked in the middle. Right: the same grid on the world, x to the east and z to the south, the origin now at x = 0, z = 0 and the corners at x = −4, z = −2.75 and x = 4, z = 2.75. Between them: x = east − origin[0], z = origin[1] − north. Below: a .npy relief is placed by the centre of its first cell, minimum_x and minimum_z, and its cell_size" src="images/placement.svg" width="880">
 </p>
 
-### go-scene-builder's relief
+### Go Scene Builder's relief
 
 `relieve.json`, `{"columns", "rows", "cell", "west", "north", "units"}`, with the heights in metres
 as little-endian float32 in `relieve.f32` next to it, row by row from the north. Its coordinates

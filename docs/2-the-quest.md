@@ -19,7 +19,7 @@ rules**, a **checkpoint** to know it works, and an optional **bonus**.
 ## Before you start
 
 You need Go 1.25 and GEOS (`sudo apt install libgeos-dev`, `brew install geos`), for looking at the
-results with go-scene-builder. Clone the projects side by side, and make a folder for the quest:
+results with Go Scene Builder. Clone the projects side by side, and make a folder for the quest:
 
 ```sh
 git clone https://github.com/akrck02/go-renderer
@@ -33,8 +33,8 @@ go mod init example.com/island
 ### Looking at a result
 
 The plugin publishes **fields**: a grid of numbers over the world, such as the height of every
-cell. A run without a window writes each field in go-scene-builder's relief format, so the builder
-can turn it into a 3D scene for go-renderer's viewer. Three files do it, made once:
+cell. A run without a window writes each field in Go Scene Builder's relief format, so the builder
+can turn it into a 3D scene for Go Renderer's viewer. Three files do it, made once:
 
 `view.yaml`, how the island looks (green low down, rock higher, snow at the top, a sea at 0 m, the
 rivers as water):
@@ -454,7 +454,7 @@ geomorphologists use.
 | The island is mirrored north to south, the rivers off the valleys | The map was not run through `look`: the snapshot writes z to the south |
 | No rivers at all | `river_area` is larger than any river's drainage: lower it, or run longer |
 | The island sinks into the sea | Erosion with no uplift only lowers it: add `uplift`, or fewer steps |
-| `pkg-config: geos not found` | GEOS is needed by go-scene-builder, to look at the result |
+| `pkg-config: geos not found` | GEOS is needed by Go Scene Builder, to look at the result |
 
 ---
 

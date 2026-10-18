@@ -2,7 +2,7 @@
 
 ## The folders it needs
 
-The plugin is developed next to go-simulator and the libraries it uses: `go.mod` replaces them
+The plugin is developed next to Go Simulator and the libraries it uses: `go.mod` replaces them
 with the folders beside this one. Clone them side by side:
 
 ```text
@@ -31,7 +31,7 @@ stages:
         with: {path: relieve.json, origin: [0, 0]}
 ```
 
-Run it from go-simulator without a window:
+Run it from Go Simulator without a window:
 
 ```bash
 cd ../go-simulator
@@ -44,7 +44,7 @@ Relative paths start at the rules file's folder, so `relieve.json` is looked for
 
 The example does not come with a relief. Put one next to it, either way:
 
-- **go-scene-builder's relief**: `relieve.json` and `relieve.f32` side by side, placed on the world
+- **Go Scene Builder's relief**: `relieve.json` and `relieve.f32` side by side, placed on the world
   with `origin`.
 - **A NumPy array**: a `.npy` of heights in metres, placed with `minimum_x`, `minimum_z` and
   `cell_size`.
@@ -62,7 +62,7 @@ the [rules reference](7-rules-reference.md) lists them all.
 ## What a run writes
 
 At every time a stage lists in `snapshots`, `simulate` writes each field as a grid: a JSON header
-and its values as little-endian float32, row by row, the relief format of go-scene-builder. For the
+and its values as little-endian float32, row by row, the relief format of Go Scene Builder. For the
 example, in `results/`:
 
 | File | Content |
