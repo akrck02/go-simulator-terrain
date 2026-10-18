@@ -1,13 +1,13 @@
 <h1 id="how-it-works">🔍 How it works</h1>
 
-<h2 id="how-the-plugin-fits-go-simulator">How the plugin fits go-simulator</h2>
+<h2 id="how-the-plugin-fits-go-simulator">How the plugin fits Go Simulator</h2>
 
 <p align="center">
-  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends go-simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="./images/how-it-works.svg" width="880">
+  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends Go Simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="./images/how-it-works.svg" width="880">
 </p>
 
-<p>go-simulator is the host. It keeps the world and moves the clock. The terrain plugin is a separate
-program the host starts; they talk over standard input and output (go-simulator&rsquo;s
+<p>Go Simulator is the host. It keeps the world and moves the clock. The terrain plugin is a separate
+program the host starts; they talk over standard input and output (Go Simulator&rsquo;s
 <a href="https://github.com/akrck02/go-simulator/blob/main/docs/5-reference/2-protocol.md" target="_blank">protocol</a>).</p>
 
 <ul>
@@ -23,8 +23,8 @@ after it find the ground already there.</li>
 </ul>
 
 <p>A plugin never touches the renderer: it reads its copy of the world and answers with changes
-(go-simulator&rsquo;s <a href="https://github.com/akrck02/go-simulator/blob/main/docs/4-guides/4-writing-plugins.md" target="_blank">writing plugins</a>).
-Fields are in physical units and shapes in world units, as go-simulator&rsquo;s
+(Go Simulator&rsquo;s <a href="https://github.com/akrck02/go-simulator/blob/main/docs/4-guides/4-writing-plugins.md" target="_blank">writing plugins</a>).
+Fields are in physical units and shapes in world units, as Go Simulator&rsquo;s
 <a href="https://github.com/akrck02/go-simulator/blob/main/docs/5-reference/1-vocabulary-and-conditions.md" target="_blank">vocabulary</a> lists.</p>
 
 <h2 id="what-happens-at-every-step">What happens at every step</h2>
@@ -47,13 +47,13 @@ byte-identical fields.</p>
 <p>The pictures of the island (the map at the top of the README, the two fields, and the profile along
 A–B) were drawn from the plugin&rsquo;s own answers. A small throwaway program, kept outside the
 repository, wrote a made-up island as a <code>relieve.json</code> and <code>relieve.f32</code>, 160 × 110 cells of 50 m,
-from a few smooth hills and some noise, and the same heights as a <code>.npy</code>. go-simulator&rsquo;s <code>simulate</code>
+from a few smooth hills and some noise, and the same heights as a <code>.npy</code>. Go Simulator&rsquo;s <code>simulate</code>
 ran the real plugin on both, and a second throwaway program drew the snapshot files it wrote:
 the elevation shaded and coloured by height with a line every 50 m, the slope on its own scale, and
 one row of both as a profile.</p>
 
 <p>The maps are PNG pairs, one for light and one for dark mode; the profile is an SVG with its own
-light and dark colours. They are 2D drawings, not screenshots of go-simulator&rsquo;s viewer: the viewer
+light and dark colours. They are 2D drawings, not screenshots of Go Simulator&rsquo;s viewer: the viewer
 draws the scene&rsquo;s own ground, not these fields. The diagrams (how it fits, the slope of a row,
 placing a relief, the steps) were drawn by hand in the same style; the numbers in the slope diagram
 were checked against the plugin&rsquo;s own code. The older island further down

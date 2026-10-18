@@ -2,7 +2,7 @@
 
 <h2 id="the-folders-it-needs">The folders it needs</h2>
 
-<p>The plugin is developed next to go-simulator and the libraries it uses: <code>go.mod</code> replaces them
+<p>The plugin is developed next to Go Simulator and the libraries it uses: <code>go.mod</code> replaces them
 with the folders beside this one. Clone them side by side:</p>
 <pre><code class="language-text">go-simulator/            the host: runs the rules files
 go-simulator-terrain/    this plugin
@@ -27,7 +27,7 @@ go-renderer/             used by go-simulator&#39;s viewer
         <span class="nt">with</span><span class="p">:</span> {<span class="nt">path</span><span class="p">:</span> <span class="nt">relieve.json, origin</span><span class="p">:</span> <span class="p">[</span><span class="m">0</span><span class="p">,</span> <span class="m">0</span><span class="p">]</span>}
 </code></pre>
 
-<p>Run it from go-simulator without a window:</p>
+<p>Run it from Go Simulator without a window:</p>
 <pre><code class="language-bash"><span class="nb">cd</span> ../go-simulator
 go run ./cmd/simulate -rules ../go-simulator-terrain/examples/ground.yaml -output results/
 </code></pre>
@@ -39,7 +39,7 @@ go run ./cmd/simulate -rules ../go-simulator-terrain/examples/ground.yaml -outpu
 <p>The example does not come with a relief. Put one next to it, either way:</p>
 
 <ul>
-<li><strong>go-scene-builder&rsquo;s relief</strong>: <code>relieve.json</code> and <code>relieve.f32</code> side by side, placed on the world
+<li><strong>Go Scene Builder&rsquo;s relief</strong>: <code>relieve.json</code> and <code>relieve.f32</code> side by side, placed on the world
 with <code>origin</code>.</li>
 <li><strong>A NumPy array</strong>: a <code>.npy</code> of heights in metres, placed with <code>minimum_x</code>, <code>minimum_z</code> and
 <code>cell_size</code>.</li>
@@ -56,7 +56,7 @@ the <a href="./rules-reference">rules reference</a> lists them all.</p>
 <h2 id="what-a-run-writes">What a run writes</h2>
 
 <p>At every time a stage lists in <code>snapshots</code>, <code>simulate</code> writes each field as a grid: a JSON header
-and its values as little-endian float32, row by row, the relief format of go-scene-builder. For the
+and its values as little-endian float32, row by row, the relief format of Go Scene Builder. For the
 example, in <code>results/</code>:</p>
 
 <table>

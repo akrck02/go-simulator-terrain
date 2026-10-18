@@ -19,7 +19,7 @@ rules</strong>, a <strong>checkpoint</strong> to know it works, and an optional 
 <h2 id="before-you-start">Before you start</h2>
 
 <p>You need Go 1.25 and GEOS (<code>sudo apt install libgeos-dev</code>, <code>brew install geos</code>), for looking at the
-results with go-scene-builder. Clone the projects side by side, and make a folder for the quest:</p>
+results with Go Scene Builder. Clone the projects side by side, and make a folder for the quest:</p>
 <pre><code class="language-sh">git clone https://github.com/akrck02/go-renderer
 git clone https://github.com/akrck02/go-scene-builder
 git clone https://github.com/akrck02/go-simulator
@@ -31,8 +31,8 @@ go mod init example.com/island
 <h3 id="looking-at-a-result">Looking at a result</h3>
 
 <p>The plugin publishes <strong>fields</strong>: a grid of numbers over the world, such as the height of every
-cell. A run without a window writes each field in go-scene-builder&rsquo;s relief format, so the builder
-can turn it into a 3D scene for go-renderer&rsquo;s viewer. Three files do it, made once:</p>
+cell. A run without a window writes each field in Go Scene Builder&rsquo;s relief format, so the builder
+can turn it into a 3D scene for Go Renderer&rsquo;s viewer. Three files do it, made once:</p>
 
 <p><code>view.yaml</code>, how the island looks (green low down, rock higher, snow at the top, a sea at 0 m, the
 rivers as water):</p>
@@ -556,7 +556,7 @@ geomorphologists use.</p>
 
 <tr>
 <td><code>pkg-config: geos not found</code></td>
-<td>GEOS is needed by go-scene-builder, to look at the result</td>
+<td>GEOS is needed by Go Scene Builder, to look at the result</td>
 </tr>
 </tbody>
 </table>
