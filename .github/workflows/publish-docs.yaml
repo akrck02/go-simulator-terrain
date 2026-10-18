@@ -15,6 +15,7 @@ jobs:
           title: "Go Terrain Simulator"
           description: "The terrain plugin of go-simulator: reliefs and erosion"
           logo: "./docs/images/logo.svg"
+          accent: "#5E9E50"
           path: "./docs"
           isObsidianProject: false
           showFooter: true
