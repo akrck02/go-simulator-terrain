@@ -3,7 +3,7 @@
 <h2 id="how-the-plugin-fits-go-simulator">How the plugin fits go-simulator</h2>
 
 <p align="center">
-  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends go-simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="images/how-it-works.svg" width="880">
+  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends go-simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="./images/how-it-works.svg" width="880">
 </p>
 
 <p>go-simulator is the host. It keeps the world and moves the clock. The terrain plugin is a separate
@@ -30,7 +30,7 @@ Fields are in physical units and shapes in world units, as go-simulator&rsquo;s
 <h2 id="what-happens-at-every-step">What happens at every step</h2>
 
 <p align="center">
-  <img alt="A stage whose clock goes from 0 to 3, a step of 1. At the start the relief rule reads the file and sets elevation and slope; at the steps to 1, 2 and 3 it has nothing to do and the host prints ground 1, 2 and 3 with 0 changes. Snapshots after the steps to 1 and 3 are the same bytes" src="images/steps.svg" width="880">
+  <img alt="A stage whose clock goes from 0 to 3, a step of 1. At the start the relief rule reads the file and sets elevation and slope; at the steps to 1, 2 and 3 it has nothing to do and the host prints ground 1, 2 and 3 with 0 changes. Snapshots after the steps to 1 and 3 are the same bytes" src="./images/steps.svg" width="880">
 </p>
 
 <p>On its own the ground does not change with time. The <code>relief</code> rule publishes it once, when the
