@@ -3,7 +3,7 @@
 Version 0.2.0, protocol 2. Publishes the ground of a relief as fields of the world, elevation (m) and slope (m/m), and can evolve it: uplift, rivers and hillslopes.
 
 This reference is generated from what the plugin itself tells the host (the `describe` message), so it always
-matches the code. Parameters go under `with:` in a rules file; see go-simulator's
+matches the code. Parameters go under `with:` in a rules file; see Go Simulator's
 [rules file reference](https://github.com/akrck02/go-simulator/blob/main/docs/4-guides/1-rules-files.md).
 
 | Rule | What it does |

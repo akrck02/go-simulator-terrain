@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: akrck02/papiro-deploy@main
         with:
-          title: "go-simulator-terrain"
+          title: "Go Terrain Simulator"
           description: "The terrain plugin of go-simulator: reliefs and erosion"
           logo: "./docs/images/logo.svg"
           path: "./docs"

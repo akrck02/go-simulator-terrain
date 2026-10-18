@@ -4,7 +4,7 @@
 
 # Go terrain simulator
 
-**The ground of a simulation, as a plugin for [go-simulator](https://github.com/akrck02/go-simulator).**
+**The ground of a simulation, as a plugin for [Go Simulator](https://github.com/akrck02/go-simulator).**
 It reads a relief once and puts it in the world as two fields, `elevation` (metres) and `slope`,
 so every other plugin reads the same ground from the world instead of loading its own file.
 Its `erosion` rule lets that ground change: the land rises, rivers cut valleys and hillslopes
@@ -66,7 +66,7 @@ reviewed it line by line. Treat it as a working draft, not as code I vouch for.
 
 ## 🚀 Quick start
 
-Clone [go-simulator](https://github.com/akrck02/go-simulator), go-scene-builder and go-renderer
+Clone [Go Simulator](https://github.com/akrck02/go-simulator), Go Scene Builder and Go Renderer
 next to this repository, then put the plugin first in a rules file:
 
 ```yaml
@@ -79,7 +79,7 @@ stages:
       - {rule: relief, with: {path: relieve.json, origin: [6, 4.5]}}
 ```
 
-and run it from go-simulator:
+and run it from Go Simulator:
 
 ```bash
 cd ../go-simulator
@@ -93,10 +93,10 @@ With a relief next to the example, `results/` gets `ground 1 elevation.json` and
 ## 🔍 How it works
 
 <p align="center">
-  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends go-simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="docs/images/how-it-works.svg" width="880">
+  <img alt="The rules file and the relief go into the terrain plugin, which reads the relief once, places it on the world and measures the slope; at the start it sends Go Simulator the fields elevation and slope; the host keeps them in the world, where other plugins read the same ground and snapshots write it to files" src="docs/images/how-it-works.svg" width="880">
 </p>
 
-go-simulator starts the plugin and tells its `relief` rule to start. The rule reads the file, lays
+Go Simulator starts the plugin and tells its `relief` rule to start. The rule reads the file, lays
 the grid on the world, measures the slope of every cell and sets both fields. On its own the ground does not
 change with time, so every later step answers with nothing; with the `erosion` rule after it, the
 ground evolves every step and is published again with its drainage and rivers.
@@ -110,5 +110,5 @@ ground evolves every step and is published again with its drainage and rivers.
 | [Getting started](docs/3-getting-started.md) | The folders it needs, the example, your own relief, the output files and the tests. |
 | [Reliefs and fields](docs/4-reliefs-and-fields.md) | What it publishes, how the slope is measured, the two relief formats and how they lie on the world. |
 | [Erosion and rivers](docs/5-erosion-and-rivers.md) | How the `erosion` rule lets the ground change: uplift, valleys, hillslopes, the rivers it publishes and what a year means. |
-| [How it works](docs/6-how-it-works.md) | How the plugin fits go-simulator, what happens at every step, and how the pictures were made. |
+| [How it works](docs/6-how-it-works.md) | How the plugin fits Go Simulator, what happens at every step, and how the pictures were made. |
 | [Rules reference](docs/7-rules-reference.md) | The `relief` and `erosion` rules and their parameters, generated from the plugin's own description. |
